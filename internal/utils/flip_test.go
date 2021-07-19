@@ -8,7 +8,7 @@ import (
 )
 
 // Тестирование функции смены ключ-значение на значение-ключ (обратный индекс)
-func TestSwapKeyToValue(t *testing.T) {
+func TestFlipKeyValue(t *testing.T) {
 	// Проверка нескольких тестовых кейсов
 	testCases := []struct {
 		name    string         // Название теста

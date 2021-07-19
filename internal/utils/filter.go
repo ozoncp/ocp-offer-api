@@ -15,7 +15,7 @@ func Filter(source []int) []int {
 	return result
 }
 
-// Проверяет содержится ли в слайсе искомый элемент
+// Поиск элемента в слайсе
 func Include(slice []int, search int) bool {
 	for _, value := range slice {
 		if value == search {

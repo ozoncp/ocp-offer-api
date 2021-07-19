@@ -8,7 +8,6 @@ import (
 )
 
 func TestSplit(t *testing.T) {
-
 	// Проверка нескольких тестовых кейсов
 	testCases := []struct {
 		name      string  // Название теста

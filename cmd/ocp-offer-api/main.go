@@ -47,5 +47,9 @@ func ReadFiles(files []string) []string {
 }
 
 func main() {
+
+	files := ReadFiles([]string{"./test/test-file-1.txt", "./test/test-file-2.txt"})
+	fmt.Printf("%v\n", files)
+
 	fmt.Println("Project: ocp-offer-api")
 }

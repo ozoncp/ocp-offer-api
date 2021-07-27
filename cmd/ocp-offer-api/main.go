@@ -7,10 +7,8 @@ import (
 	"os"
 )
 
-// Задание: Используя defer и функтор реализовать открытие и закрытие файла в цикле
-//
-// Принемает слайс путей и возвращает слайс считаных файлов
-func FilesReader(files []string) []string {
+// ReadFiles Принимает слайс путей и возвращает слайс считанных файлов
+func ReadFiles(files []string) []string {
 	freader := func(fpath string) ([]byte, error) {
 		file, err := os.OpenFile(fpath, os.O_RDONLY, 0)
 		if err != nil {
@@ -49,10 +47,5 @@ func FilesReader(files []string) []string {
 }
 
 func main() {
-	fpaths := []string{"./main.go", "../../internal/model/offer.go"}
-	files := FilesReader(fpaths)
-	fmt.Println(files)
-
 	fmt.Println("Project: ocp-offer-api")
-
 }

@@ -3,24 +3,24 @@ package utils_test
 import (
 	"testing"
 
-	"github.com/ozoncp/ocp-offer-api/internal/model"
-	utils "github.com/ozoncp/ocp-offer-api/internal/utils/model"
+	"github.com/ozoncp/ocp-offer-api/internal/models"
+	utils "github.com/ozoncp/ocp-offer-api/internal/utils/models"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSplitToBulks(t *testing.T) {
+func TestSplitToBatches(t *testing.T) {
 	// Проверка нескольких тестовых кейсов
 	testCases := []struct {
-		name      string          // Название теста
-		source    []model.Offer   // Исходный слайс
-		batchSize uint            // Количество частей на которые нужно разбить слайс
-		result    [][]model.Offer // Результат разбивки
-		isError   bool            // Если должна вернуться ошибка
+		name      string           // Название теста
+		source    []models.Offer   // Исходный слайс
+		batchSize uint             // Количество частей на которые нужно разбить слайс
+		result    [][]models.Offer // Результат разбивки
+		isError   bool             // Если должна вернуться ошибка
 	}{
 		{
 			name: "Batch size 2 & len slice 10",
-			source: []model.Offer{
+			source: []models.Offer{
 				{Id: 0, UserId: 0, Grade: 0, TeamId: 0},
 				{Id: 1, UserId: 1, Grade: 1, TeamId: 1},
 				{Id: 2, UserId: 2, Grade: 2, TeamId: 2},
@@ -33,7 +33,7 @@ func TestSplitToBulks(t *testing.T) {
 				{Id: 9, UserId: 9, Grade: 9, TeamId: 9},
 			},
 			batchSize: 2,
-			result: [][]model.Offer{
+			result: [][]models.Offer{
 				{
 					{Id: 0, UserId: 0, Grade: 0, TeamId: 0},
 					{Id: 1, UserId: 1, Grade: 1, TeamId: 1},
@@ -53,7 +53,7 @@ func TestSplitToBulks(t *testing.T) {
 		},
 		{
 			name: "Batch size 3 & len slice 10",
-			source: []model.Offer{
+			source: []models.Offer{
 				{Id: 0, UserId: 0, Grade: 0, TeamId: 0},
 				{Id: 1, UserId: 1, Grade: 1, TeamId: 1},
 				{Id: 2, UserId: 2, Grade: 2, TeamId: 2},
@@ -66,7 +66,7 @@ func TestSplitToBulks(t *testing.T) {
 				{Id: 9, UserId: 9, Grade: 9, TeamId: 9},
 			},
 			batchSize: 3,
-			result: [][]model.Offer{
+			result: [][]models.Offer{
 				{
 					{Id: 0, UserId: 0, Grade: 0, TeamId: 0},
 					{Id: 1, UserId: 1, Grade: 1, TeamId: 1},
@@ -88,7 +88,7 @@ func TestSplitToBulks(t *testing.T) {
 		},
 		{
 			name: "Batch size 0 & len slice 10",
-			source: []model.Offer{
+			source: []models.Offer{
 				{Id: 0, UserId: 0, Grade: 0, TeamId: 0},
 				{Id: 1, UserId: 1, Grade: 1, TeamId: 1},
 				{Id: 2, UserId: 2, Grade: 2, TeamId: 2},
@@ -106,7 +106,7 @@ func TestSplitToBulks(t *testing.T) {
 		},
 		{
 			name: "Batch size 11 & len slice 10",
-			source: []model.Offer{
+			source: []models.Offer{
 				{Id: 0, UserId: 0, Grade: 0, TeamId: 0},
 				{Id: 1, UserId: 1, Grade: 1, TeamId: 1},
 				{Id: 2, UserId: 2, Grade: 2, TeamId: 2},
@@ -126,7 +126,7 @@ func TestSplitToBulks(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result, err := utils.SplitToBulks(tc.source, tc.batchSize)
+			result, err := utils.SplitToBatches(tc.source, tc.batchSize)
 
 			if tc.isError {
 				assert.Error(t, err)
@@ -134,7 +134,7 @@ func TestSplitToBulks(t *testing.T) {
 
 			// Проверка на то, что слайс был скопирован и нет ссылок на исходный массив
 			if len(result) > 0 {
-				tc.source[0].Id = 9876543210 // Изменяем значение в исходном слайсе
+				tc.source[0].Id = 9876543210                         // Изменяем значение в исходном слайсе
 				assert.NotEqual(t, tc.source[0].Id, result[0][0].Id) // Значение не должно совпадать с результатом
 			}
 
@@ -146,23 +146,23 @@ func TestSplitToBulks(t *testing.T) {
 func TestConvertSliceToMap(t *testing.T) {
 	// Проверка нескольких тестовых кейсов
 	testCases := []struct {
-		name    string                 // Название теста
-		source  []model.Offer          // Исходный слайс
-		result  map[uint64]model.Offer // Результат разбивки
-		isValid bool                   // Является ли тест кейс валидным (иначе проверять на неравенство с результатом)
-		isError bool                   // Если должна вернуться ошибка
+		name    string                  // Название теста
+		source  []models.Offer          // Исходный слайс
+		result  map[uint64]models.Offer // Результат разбивки
+		isValid bool                    // Является ли тест кейс валидным (иначе проверять на неравенство с результатом)
+		isError bool                    // Если должна вернуться ошибка
 	}{
 		{
 
 			name:    "Empty source & result",
-			source:  []model.Offer{},
-			result:  map[uint64]model.Offer{},
+			source:  []models.Offer{},
+			result:  map[uint64]models.Offer{},
 			isValid: true,
 			isError: false,
 		},
 		{
 			name: "Equal",
-			source: []model.Offer{
+			source: []models.Offer{
 				{Id: 0, UserId: 0, Grade: 0, TeamId: 0},
 				{Id: 1, UserId: 1, Grade: 1, TeamId: 1},
 				{Id: 2, UserId: 2, Grade: 2, TeamId: 2},
@@ -174,7 +174,7 @@ func TestConvertSliceToMap(t *testing.T) {
 				{Id: 8, UserId: 8, Grade: 8, TeamId: 8},
 				{Id: 9, UserId: 9, Grade: 9, TeamId: 9},
 			},
-			result: map[uint64]model.Offer{
+			result: map[uint64]models.Offer{
 				0: {Id: 0, UserId: 0, Grade: 0, TeamId: 0},
 				1: {Id: 1, UserId: 1, Grade: 1, TeamId: 1},
 				2: {Id: 2, UserId: 2, Grade: 2, TeamId: 2},
@@ -191,7 +191,7 @@ func TestConvertSliceToMap(t *testing.T) {
 		},
 		{
 			name: "Empty result",
-			source: []model.Offer{
+			source: []models.Offer{
 				{Id: 0, UserId: 0, Grade: 0, TeamId: 0},
 				{Id: 1, UserId: 1, Grade: 1, TeamId: 1},
 				{Id: 2, UserId: 2, Grade: 2, TeamId: 2},
@@ -203,7 +203,7 @@ func TestConvertSliceToMap(t *testing.T) {
 				{Id: 8, UserId: 8, Grade: 8, TeamId: 8},
 				{Id: 9, UserId: 9, Grade: 9, TeamId: 9},
 			},
-			result:  map[uint64]model.Offer{},
+			result:  map[uint64]models.Offer{},
 			isValid: false,
 			isError: false,
 		},

@@ -2,16 +2,15 @@ package utils
 
 import (
 	"errors"
-	"math"
 
-	"github.com/ozoncp/ocp-offer-api/internal/model"
+	"github.com/ozoncp/ocp-offer-api/internal/models"
 )
 
-// Батчевое разделение слайса на слайс слайсов
+// SplitToBatches Батчевое разделение слайса на слайс слайсов
 //
 // "source" - исходный слайс;
 // "batchSize" - количество частей на которые нужно разбить слайс.
-func SplitToBulks(source []model.Offer, batchSize uint) ([][]model.Offer, error) {
+func SplitToBatches(source []models.Offer, batchSize uint) ([][]models.Offer, error) {
 	// Проверка на то, что количество батчей больше нуля.
 	if batchSize <= 0 {
 		return nil, errors.New("the batch size must not be less than zero or equal to zero")
@@ -26,15 +25,18 @@ func SplitToBulks(source []model.Offer, batchSize uint) ([][]model.Offer, error)
 	// При передаче в функции слайс копируется, но вместе с указателем на тот же участок памяти,
 	// из-за этого при изменении данных возвращаемого слайса меняется данные и в исходном.
 	// Исходный код слайса https://golang.org/src/runtime/slice.go#L11
-	slice := make([]model.Offer, len(source))
+	slice := make([]models.Offer, len(source))
 	copy(slice, source)
 
-	var result [][]model.Offer
+	var result [][]models.Offer
 
 	length := len(slice)
 
 	// Количество шагов (батчей), округляем в большую сторону
-	step := int(math.Ceil(float64(length) / float64(batchSize)))
+	step := int(len(slice)) / int(batchSize)
+	if len(slice)%int(batchSize) != 0 {
+		step += 1
+	}
 
 	// Разбиваем слайс на части и добавляем в результат
 	for i := 0; i < length; i += step {
@@ -48,13 +50,17 @@ func SplitToBulks(source []model.Offer, batchSize uint) ([][]model.Offer, error)
 	return result, nil
 }
 
-// Конвертации слайса от структуры в отображение,
+// ConvertSliceToMap - Конвертации слайса от структуры в отображение,
 // где ключ идентификатор структуры, а значение сама структура
 //
 // "source" - исходный слайс;
-func ConvertSliceToMap(source []model.Offer) (map[uint64]model.Offer, error) {
+func ConvertSliceToMap(source []models.Offer) (map[uint64]models.Offer, error) {
 
-	result := make(map[uint64]model.Offer, len(source))
+	if source == nil {
+		return nil, errors.New("source cannot be `nil`")
+	}
+
+	result := make(map[uint64]models.Offer, len(source))
 
 	for _, offer := range source {
 		result[offer.Id] = offer

@@ -8,7 +8,7 @@ import (
 )
 
 // ReadFiles Принимает слайс путей и возвращает слайс считанных файлов
-func ReadFiles(files []string) []string {
+func ReadFiles(files []string) ([]string, error) {
 	freader := func(fpath string) ([]byte, error) {
 		file, err := os.OpenFile(fpath, os.O_RDONLY, 0)
 		if err != nil {
@@ -38,17 +38,17 @@ func ReadFiles(files []string) []string {
 	for _, file := range files {
 		fbyte, err := freader(file)
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 		result = append(result, string(fbyte))
 	}
 
-	return result
+	return result, nil
 }
 
 func main() {
 
-	files := ReadFiles([]string{"./test/test-file-1.txt", "./test/test-file-2.txt"})
+	files, _ := ReadFiles([]string{"./test/test-file-1.txt", "./test/test-file-2.txt"})
 	fmt.Printf("%v\n", files)
 
 	fmt.Println("Project: ocp-offer-api")

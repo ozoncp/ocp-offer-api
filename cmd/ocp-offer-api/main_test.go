@@ -13,43 +13,45 @@ func TestReadFiles(t *testing.T) {
 		name    string   // Название теста
 		paths   []string // Пути до файлов
 		result  []string // Результат чтения файлов
-		isValid bool     // Является ли тест кейс валидным (иначе проверять на неравенство с результатом)
+		isError bool     // Если должна вернуться ошибка
 	}{
 		{
 			name:    "Read one file",
 			paths:   []string{"./test/test-file-1.txt"},
 			result:  []string{"Test 1"},
-			isValid: true,
+			isError: false,
 		},
 		{
 			name:    "Read two file",
 			paths:   []string{"./test/test-file-1.txt", "./test/test-file-2.txt"},
 			result:  []string{"Test 1", "Test 2"},
-			isValid: true,
+			isError: false,
 		},
 		{
 			name:    "Empty",
 			paths:   []string{},
 			result:  []string{},
-			isValid: true,
+			isError: false,
 		},
 		{
-			name:    "Not equal result",
-			paths:   []string{"./test/test-file-1.txt"},
-			result:  []string{},
-			isValid: false,
+			name:    "Non-existent path",
+			paths:   []string{"./test/no-file.txt"},
+			result:  nil,
+			isError: true,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := main.ReadFiles(tc.paths)
+			result, err := main.ReadFiles(tc.paths)
 
-			if tc.isValid {
-				assert.Equal(t, tc.result, result)
+			if tc.isError {
+				assert.Error(t, err)
 			} else {
-				assert.NotEqual(t, tc.result, result)
+				assert.NoError(t, err)
 			}
+
+			assert.Equal(t, tc.result, result)
 		})
 	}
 }

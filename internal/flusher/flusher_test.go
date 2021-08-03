@@ -16,25 +16,12 @@ var _ = Describe("Flusher", func() {
 		m      *mocks.MockRepo
 		f      flusher.Flusher
 		source []models.Offer
-		result []models.Offer
 	)
 
 	BeforeEach(func() {
 		ctrl = gomock.NewController(GinkgoT())
 		m = mocks.NewMockRepo(ctrl)
 		source = []models.Offer{
-			{Id: 10, UserId: 20, Grade: 30, TeamId: 40},
-			{Id: 11, UserId: 21, Grade: 31, TeamId: 41},
-			{Id: 12, UserId: 22, Grade: 32, TeamId: 42},
-			{Id: 13, UserId: 23, Grade: 33, TeamId: 43},
-			{Id: 14, UserId: 24, Grade: 34, TeamId: 44},
-			{Id: 15, UserId: 25, Grade: 35, TeamId: 45},
-			{Id: 16, UserId: 26, Grade: 36, TeamId: 46},
-			{Id: 17, UserId: 27, Grade: 37, TeamId: 47},
-			{Id: 18, UserId: 28, Grade: 38, TeamId: 48},
-			{Id: 19, UserId: 29, Grade: 39, TeamId: 49},
-		}
-		result = []models.Offer{
 			{Id: 10, UserId: 20, Grade: 30, TeamId: 40},
 			{Id: 11, UserId: 21, Grade: 31, TeamId: 41},
 			{Id: 12, UserId: 22, Grade: 32, TeamId: 42},
@@ -56,7 +43,8 @@ var _ = Describe("Flusher", func() {
 		Context("when Addoffers returns error", func() {
 			It("returns error", func() {
 				source = make([]models.Offer, 0)
-				result = nil
+				var result []models.Offer = nil
+
 				f = flusher.NewFlusher(3, m)
 
 				m.EXPECT().
@@ -74,7 +62,8 @@ var _ = Describe("Flusher", func() {
 			Context("when chunk < 0", func() {
 				It("returns error", func() {
 					source = make([]models.Offer, 0)
-					result = nil
+					var result []models.Offer = nil
+
 					f = flusher.NewFlusher(-1, m)
 
 					m.EXPECT().
@@ -102,7 +91,7 @@ var _ = Describe("Flusher", func() {
 					res, err := f.Flush(source)
 
 					Expect(err).ShouldNot(HaveOccurred())
-					Expect(res).Should(Equal(result))
+					Expect(res).Should(Equal(source))
 				})
 			})
 
@@ -117,7 +106,7 @@ var _ = Describe("Flusher", func() {
 					res, err := f.Flush(source)
 
 					Expect(err).ShouldNot(HaveOccurred())
-					Expect(res).Should(Equal(result))
+					Expect(res).Should(Equal(source))
 				})
 			})
 
@@ -132,7 +121,7 @@ var _ = Describe("Flusher", func() {
 					res, err := f.Flush(source)
 
 					Expect(err).ShouldNot(HaveOccurred())
-					Expect(res).Should(Equal(result))
+					Expect(res).Should(Equal(source))
 				})
 			})
 		})

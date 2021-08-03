@@ -1,6 +1,8 @@
 package flusher_test
 
 import (
+	"errors"
+
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -42,21 +44,20 @@ var _ = Describe("Flusher", func() {
 	Context("save offers to repo with flusher", func() {
 		Context("when AddOffers returns error", func() {
 			It("returns error", func() {
-				source = make([]models.Offer, 0)
 				var result []models.Offer = nil
-
 				f = flusher.NewFlusher(3, m)
 
 				m.EXPECT().
 					AddOffers(gomock.Any()).
-					Times(0)
+					Return(errors.New("error")).
+					Times(1)
 
 				res, err := f.Flush(source)
 
 				Expect(err).Should(HaveOccurred())
+				Expect(err).Should(BeEquivalentTo(errors.New("error")))
 				Expect(res).Should(Equal(result))
 			})
-
 		})
 
 		Context("not normal case", func() {
@@ -78,16 +79,14 @@ var _ = Describe("Flusher", func() {
 
 			Context("when source is empty", func() {
 				It("returns error", func() {
-					source = make([]models.Offer, 0)
 					var result []models.Offer = nil
-
 					f := flusher.NewFlusher(1, m)
 
 					m.EXPECT().
 						AddOffers(gomock.Any()).
 						Times(0)
 
-					res, err := f.Flush(source)
+					res, err := f.Flush(make([]models.Offer, 0))
 
 					Expect(err).Should(HaveOccurred())
 					Expect(res).Should(Equal(result))

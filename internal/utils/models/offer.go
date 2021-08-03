@@ -6,11 +6,11 @@ import (
 	"github.com/ozoncp/ocp-offer-api/internal/models"
 )
 
-// SplitToBatches Батчевое разделение слайса на слайс слайсов
+// SplitOffersToBatches Батчевое разделение слайса на слайс слайсов
 //
 // "source" - исходный слайс;
 // "batchSize" - количество частей на которые нужно разбить слайс.
-func SplitToBatches(source []models.Offer, batchSize uint) ([][]models.Offer, error) {
+func SplitOffersToBatches(source []models.Offer, batchSize uint) ([][]models.Offer, error) {
 	// Проверка на то, что количество батчей больше нуля.
 	if batchSize <= 0 {
 		return nil, errors.New("the batch size must not be less than zero or equal to zero")

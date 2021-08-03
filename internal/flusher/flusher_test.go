@@ -41,13 +41,10 @@ var _ = Describe("Flusher", func() {
 		ctrl.Finish()
 	})
 
-	Context("Empty slice", func() {
-		BeforeEach(func() {
+	Context("save offers to repo with flusher", func() {
+		It("empty source", func() {
 			source = make([]models.Offer, 0)
 			result = nil
-		})
-
-		It("3 chunkSize", func() {
 			f = flusher.NewFlusher(3, m)
 
 			m.EXPECT().
@@ -56,13 +53,11 @@ var _ = Describe("Flusher", func() {
 
 			res, err := f.Flush(source)
 
-			Ω(err).Should(HaveOccurred())
-			Ω(res).Should(Equal(result))
+			Expect(err).Should(HaveOccurred())
+			Expect(res).Should(Equal(result))
 		})
-	})
 
-	Context("batches for", func() {
-		It("1 chunkSize", func() {
+		It("chunkSize == 1", func() {
 			f := flusher.NewFlusher(1, m)
 
 			m.EXPECT().
@@ -71,11 +66,11 @@ var _ = Describe("Flusher", func() {
 
 			res, err := f.Flush(source)
 
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(res).Should(Equal(result))
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(res).Should(Equal(result))
 		})
 
-		It("2 chunkSize", func() {
+		It("chunkSize == 2", func() {
 			f := flusher.NewFlusher(2, m)
 
 			m.EXPECT().
@@ -84,11 +79,11 @@ var _ = Describe("Flusher", func() {
 
 			res, err := f.Flush(source)
 
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(res).Should(Equal(result))
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(res).Should(Equal(result))
 		})
 
-		It("5 chunkSize", func() {
+		It("chunkSize == 5", func() {
 			f := flusher.NewFlusher(5, m)
 
 			m.EXPECT().
@@ -97,8 +92,8 @@ var _ = Describe("Flusher", func() {
 
 			res, err := f.Flush(source)
 
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(res).Should(Equal(result))
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(res).Should(Equal(result))
 		})
 	})
 

@@ -36,5 +36,5 @@ func (f *flusher) Flush(offers []models.Offer) ([]models.Offer, error) {
 		}
 	}
 
-	return make([]models.Offer, 0), nil
+	return offers, nil
 }

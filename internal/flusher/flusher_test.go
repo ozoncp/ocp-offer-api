@@ -53,59 +53,90 @@ var _ = Describe("Flusher", func() {
 	})
 
 	Context("save offers to repo with flusher", func() {
-		It("empty source", func() {
-			source = make([]models.Offer, 0)
-			result = nil
-			f = flusher.NewFlusher(3, m)
+		Context("when Addoffers returns error", func() {
+			It("returns error", func() {
+				source = make([]models.Offer, 0)
+				result = nil
+				f = flusher.NewFlusher(3, m)
 
-			m.EXPECT().
-				AddOffers(gomock.Any()).
-				Times(0)
+				m.EXPECT().
+					AddOffers(gomock.Any()).
+					Times(0)
 
-			res, err := f.Flush(source)
+				res, err := f.Flush(source)
 
-			Expect(err).Should(HaveOccurred())
-			Expect(res).Should(Equal(result))
+				Expect(err).Should(HaveOccurred())
+				Expect(res).Should(Equal(result))
+			})
 		})
 
-		It("chunkSize == 1", func() {
-			f := flusher.NewFlusher(1, m)
+		Context("not normal case", func() {
+			Context("when chunk < 0", func() {
+				It("returns error", func() {
+					source = make([]models.Offer, 0)
+					result = nil
+					f = flusher.NewFlusher(-1, m)
 
-			m.EXPECT().
-				AddOffers(gomock.Any()).
-				Times(1)
+					m.EXPECT().
+						AddOffers(gomock.Any()).
+						Times(0)
 
-			res, err := f.Flush(source)
+					res, err := f.Flush(source)
 
-			Expect(err).ShouldNot(HaveOccurred())
-			Expect(res).Should(Equal(result))
+					Expect(err).Should(HaveOccurred())
+					Expect(res).Should(Equal(result))
+				})
+			})
 		})
 
-		It("chunkSize == 2", func() {
-			f := flusher.NewFlusher(2, m)
+		Context("normal case", func() {
 
-			m.EXPECT().
-				AddOffers(gomock.Any()).
-				Times(2)
+			Context("when chunk = 1", func() {
+				It("works without errors", func() {
+					f := flusher.NewFlusher(1, m)
 
-			res, err := f.Flush(source)
+					m.EXPECT().
+						AddOffers(gomock.Any()).
+						Times(1)
 
-			Expect(err).ShouldNot(HaveOccurred())
-			Expect(res).Should(Equal(result))
+					res, err := f.Flush(source)
+
+					Expect(err).ShouldNot(HaveOccurred())
+					Expect(res).Should(Equal(result))
+				})
+			})
+
+			Context("when chunk = 2", func() {
+				It("works without errors", func() {
+					f := flusher.NewFlusher(2, m)
+
+					m.EXPECT().
+						AddOffers(gomock.Any()).
+						Times(2)
+
+					res, err := f.Flush(source)
+
+					Expect(err).ShouldNot(HaveOccurred())
+					Expect(res).Should(Equal(result))
+				})
+			})
+
+			Context("when chunk = 5", func() {
+				It("works without errors", func() {
+					f := flusher.NewFlusher(5, m)
+
+					m.EXPECT().
+						AddOffers(gomock.Any()).
+						Times(5)
+
+					res, err := f.Flush(source)
+
+					Expect(err).ShouldNot(HaveOccurred())
+					Expect(res).Should(Equal(result))
+				})
+			})
 		})
 
-		It("chunkSize == 5", func() {
-			f := flusher.NewFlusher(5, m)
-
-			m.EXPECT().
-				AddOffers(gomock.Any()).
-				Times(5)
-
-			res, err := f.Flush(source)
-
-			Expect(err).ShouldNot(HaveOccurred())
-			Expect(res).Should(Equal(result))
-		})
 	})
 
 })

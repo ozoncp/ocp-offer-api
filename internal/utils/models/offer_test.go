@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSplitToBatches(t *testing.T) {
+func TestSplitOffersToBatches(t *testing.T) {
 	// Проверка нескольких тестовых кейсов
 	testCases := []struct {
 		name      string           // Название теста
@@ -126,7 +126,7 @@ func TestSplitToBatches(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result, err := utils.SplitToBatches(tc.source, tc.batchSize)
+			result, err := utils.SplitOffersToBatches(tc.source, tc.batchSize)
 
 			if tc.isError {
 				assert.Error(t, err)

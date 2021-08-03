@@ -40,7 +40,7 @@ var _ = Describe("Flusher", func() {
 	})
 
 	Context("save offers to repo with flusher", func() {
-		Context("when Addoffers returns error", func() {
+		Context("when AddOffers returns error", func() {
 			It("returns error", func() {
 				source = make([]models.Offer, 0)
 				var result []models.Offer = nil
@@ -56,15 +56,32 @@ var _ = Describe("Flusher", func() {
 				Expect(err).Should(HaveOccurred())
 				Expect(res).Should(Equal(result))
 			})
+
 		})
 
 		Context("not normal case", func() {
 			Context("when chunk < 0", func() {
 				It("returns error", func() {
+					var result []models.Offer = nil
+					f = flusher.NewFlusher(-1, m)
+
+					m.EXPECT().
+						AddOffers(gomock.Any()).
+						Times(0)
+
+					res, err := f.Flush(source)
+
+					Expect(err).Should(HaveOccurred())
+					Expect(res).Should(Equal(result))
+				})
+			})
+
+			Context("when source is empty", func() {
+				It("returns error", func() {
 					source = make([]models.Offer, 0)
 					var result []models.Offer = nil
 
-					f = flusher.NewFlusher(-1, m)
+					f := flusher.NewFlusher(1, m)
 
 					m.EXPECT().
 						AddOffers(gomock.Any()).

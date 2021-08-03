@@ -34,7 +34,18 @@ var _ = Describe("Flusher", func() {
 			{Id: 18, UserId: 28, Grade: 38, TeamId: 48},
 			{Id: 19, UserId: 29, Grade: 39, TeamId: 49},
 		}
-		result = make([]models.Offer, 0)
+		result = []models.Offer{
+			{Id: 10, UserId: 20, Grade: 30, TeamId: 40},
+			{Id: 11, UserId: 21, Grade: 31, TeamId: 41},
+			{Id: 12, UserId: 22, Grade: 32, TeamId: 42},
+			{Id: 13, UserId: 23, Grade: 33, TeamId: 43},
+			{Id: 14, UserId: 24, Grade: 34, TeamId: 44},
+			{Id: 15, UserId: 25, Grade: 35, TeamId: 45},
+			{Id: 16, UserId: 26, Grade: 36, TeamId: 46},
+			{Id: 17, UserId: 27, Grade: 37, TeamId: 47},
+			{Id: 18, UserId: 28, Grade: 38, TeamId: 48},
+			{Id: 19, UserId: 29, Grade: 39, TeamId: 49},
+		}
 	})
 
 	AfterEach(func() {

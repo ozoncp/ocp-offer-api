@@ -143,7 +143,7 @@ func TestSplitOffersToBatches(t *testing.T) {
 	}
 }
 
-func TestConvertSliceToMap(t *testing.T) {
+func TestConvertOffersSliceToMap(t *testing.T) {
 	// Проверка нескольких тестовых кейсов
 	testCases := []struct {
 		name    string                  // Название теста
@@ -211,7 +211,7 @@ func TestConvertSliceToMap(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result, err := utils.ConvertSliceToMap(tc.source)
+			result, err := utils.ConvertOffersSliceToMap(tc.source)
 
 			if tc.isError {
 				assert.Error(t, err)

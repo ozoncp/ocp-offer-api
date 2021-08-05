@@ -50,12 +50,11 @@ func SplitOffersToBatches(source []models.Offer, batchSize uint) ([][]models.Off
 	return result, nil
 }
 
-// ConvertSliceToMap - Конвертации слайса от структуры в отображение,
+// ConvertOffersSliceToMap - Конвертации слайса от структуры в отображение,
 // где ключ идентификатор структуры, а значение сама структура
 //
 // "source" - исходный слайс;
-func ConvertSliceToMap(source []models.Offer) (map[uint64]models.Offer, error) {
-
+func ConvertOffersSliceToMap(source []models.Offer) (map[uint64]models.Offer, error) {
 	if source == nil {
 		return nil, errors.New("source cannot be `nil`")
 	}

@@ -18,8 +18,8 @@ var (
 	// ErrorFlusherIsNil - flusher является nil
 	ErrorFlusherIsNil = errors.New("flusher is nil")
 
-	// ErrorNotifierIsNil - notifier является nil
-	ErrorNotifierIsNil = errors.New("notifier is nil")
+	// ErrorDurationLessOrEqualZero - duration не может быть меньше или равен нулю
+	ErrorDurationLessOrEqualZero = errors.New("duration cannot be less than or equal to zero")
 
 	// ErrorChanelClosed - канал закрыт
 	ErrorChanelClosed = errors.New("chanel is closed")

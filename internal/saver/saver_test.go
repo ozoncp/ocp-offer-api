@@ -1,7 +1,6 @@
 package saver_test
 
 import (
-	"errors"
 	"time"
 
 	"github.com/golang/mock/gomock"
@@ -80,6 +79,7 @@ var _ = Describe("Saver", func() {
 
 				Expect(s).ShouldNot(BeNil())
 				Expect(err).Should(BeNil())
+				s.Close()
 			})
 		})
 	})
@@ -96,10 +96,10 @@ var _ = Describe("Saver", func() {
 			It("already initialized", func() {
 				// first initialization
 				Expect(s.Init()).Should(BeNil())
-
 				// second initialization
 				Expect(s.Init()).
 					Should(BeEquivalentTo(saver.ErrorAlreadyInitialized))
+				s.Close()
 			})
 		})
 	})
@@ -111,27 +111,17 @@ var _ = Describe("Saver", func() {
 					Should(BeEquivalentTo(saver.ErrorNotInitialized))
 			})
 
-			It("when there are more offers than capacity", func() {
-				Expect(s.Init()).Should(BeNil())
-
-				countOffers := (int(capacity) + 1) * 2
-
+			It("when save channel is closed ", func() {
 				m.EXPECT().
 					AddOffers(gomock.Any()).
-					AnyTimes().Return(errors.New("error"))
+					Times(0).Return(nil)
 
-				for i := 0; i < countOffers; i++ {
-					err := s.Save(models.Offer{
-						Id: uint64(i),
-					})
+				Expect(s.Init()).Should(BeNil())
 
-					if uint(i) > capacity {
-						Expect(err).Should(BeEquivalentTo(saver.ErrorMaximumCapacityReached))
-					} else if uint(i) < capacity {
-						Expect(err).Should(BeNil())
-					}
-				}
 				s.Close()
+				err := s.Save(models.Offer{Id: 1})
+
+				Expect(err).Should(BeEquivalentTo(saver.ErrorChanelClosed))
 			})
 		})
 	})

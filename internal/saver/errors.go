@@ -20,4 +20,7 @@ var (
 
 	// ErrorNotifierIsNil - notifier является nil
 	ErrorNotifierIsNil = errors.New("notifier is nil")
+
+	// ErrorChanelClosed - канал закрыт
+	ErrorChanelClosed = errors.New("chanel is closed")
 )

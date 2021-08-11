@@ -24,17 +24,24 @@ type flusher struct {
 	offerRepo repo.Repo
 }
 
+// Flush добавляет офферы пачками в хранилеще
+// при ошибке возвращает не добавленные слайсы и ошибку
 func (f *flusher) Flush(offers []models.Offer) ([]models.Offer, error) {
-	batches, err := utils.SplitOffersToBatches(offers, uint(f.chunkSize))
+	chunks, err := utils.SplitOffersToBatches(offers, uint(f.chunkSize))
 	if err != nil {
-		return nil, err
+		return offers, err
 	}
 
-	for _, chunk := range batches {
+	// позиция - успешно добаленных чанков
+	pos := 0
+
+	for _, chunk := range chunks {
 		if err := f.offerRepo.AddOffers(chunk); err != nil {
-			return nil, err
+			// возращаем не добавленные в хранилище чанки и ошибку
+			return offers[pos:], err
 		}
+		pos += len(chunk)
 	}
 
-	return offers, nil
+	return nil, nil
 }

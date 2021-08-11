@@ -58,15 +58,17 @@ func NewSaver(capacity uint, flusher flusher.Flusher, duration time.Duration) (S
 			select {
 			case offer := <-s.offersChan:
 				s.mu.Lock()
-				if uint(len(s.offers)) < s.capacity {
-					s.offers = append(s.offers, offer)
+				s.offers = append(s.offers, offer)
+				if uint(len(s.offers)) >= s.capacity {
+					s.flushOffers()
 				}
-				// иначе пропускаем
 				s.mu.Unlock()
 
 			// Слушаем событие тикера на сохранение в хранилище
 			case <-s.tiker.C:
+				s.mu.Lock()
 				s.flushOffers()
+				s.mu.Unlock()
 
 			case <-s.end:
 				return
@@ -89,14 +91,12 @@ func (s *saver) Save(offer models.Offer) error {
 }
 
 func (s *saver) flushOffers() {
-	s.mu.Lock()
 	// возращает не добавленные в хранилище элементы и ошибку
 	unsavedOffers, _ := s.flusher.Flush(s.offers)
 
 	// оставляем только не сохранёные
 	s.offers = s.offers[:0]
 	s.offers = append(s.offers, unsavedOffers...)
-	s.mu.Unlock()
 }
 
 func (s *saver) Close() {

@@ -2,6 +2,7 @@ package flusher_test
 
 import (
 	"errors"
+	"reflect"
 
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
@@ -10,6 +11,7 @@ import (
 	"github.com/ozoncp/ocp-offer-api/internal/flusher"
 	"github.com/ozoncp/ocp-offer-api/internal/mocks"
 	"github.com/ozoncp/ocp-offer-api/internal/models"
+	utils "github.com/ozoncp/ocp-offer-api/internal/utils/models"
 )
 
 var _ = Describe("Flusher", func() {
@@ -44,7 +46,6 @@ var _ = Describe("Flusher", func() {
 	Context("save offers to repo with flusher", func() {
 		Context("when AddOffers returns error", func() {
 			It("returns error", func() {
-				var result []models.Offer = nil
 				f = flusher.NewFlusher(3, m)
 
 				m.EXPECT().
@@ -54,16 +55,42 @@ var _ = Describe("Flusher", func() {
 
 				res, err := f.Flush(source)
 
-				Expect(err).Should(HaveOccurred())
 				Expect(err).Should(BeEquivalentTo(errors.New("error")))
-				Expect(res).Should(Equal(result))
+				Expect(res).Should(Equal(source))
+			})
+		})
+
+		Context("when AddOffers returns an error in loop of Flush function", func() {
+			It("returns error", func() {
+				chunkSize := 3
+				f := flusher.NewFlusher(chunkSize, m)
+				chunks, _ := utils.SplitOffersToBatches(source, uint(chunkSize))
+
+				m.EXPECT().
+					AddOffers(gomock.Any()).
+					Times(2).
+					DoAndReturn(
+						func(chunk []models.Offer) error {
+							if reflect.DeepEqual(chunk, chunks[1]) {
+								return errors.New("error")
+							}
+							return nil
+						},
+					)
+
+				res, err := f.Flush(source)
+
+				// проверяем что вернутась нужная ошибка
+				Expect(err).Should(BeEquivalentTo(errors.New("error")))
+
+				// проверяем что вернулась часть - только не добавленные в хранилище
+				Expect(res).Should(Equal(source[len(chunks[1]):]))
 			})
 		})
 
 		Context("not normal case", func() {
 			Context("when chunk < 0", func() {
 				It("returns error", func() {
-					var result []models.Offer = nil
 					f = flusher.NewFlusher(-1, m)
 
 					m.EXPECT().
@@ -73,25 +100,26 @@ var _ = Describe("Flusher", func() {
 					res, err := f.Flush(source)
 
 					Expect(err).Should(HaveOccurred())
-					Expect(res).Should(Equal(result))
+					Expect(res).Should(Equal(source))
 				})
 			})
 
 			Context("when source is empty", func() {
 				It("returns error", func() {
-					var result []models.Offer = nil
+					data := make([]models.Offer, 0)
 					f := flusher.NewFlusher(1, m)
 
 					m.EXPECT().
 						AddOffers(gomock.Any()).
 						Times(0)
 
-					res, err := f.Flush(make([]models.Offer, 0))
+					res, err := f.Flush(data)
 
 					Expect(err).Should(HaveOccurred())
-					Expect(res).Should(Equal(result))
+					Expect(res).Should(Equal(data))
 				})
 			})
+
 		})
 
 		Context("normal case", func() {
@@ -107,7 +135,7 @@ var _ = Describe("Flusher", func() {
 					res, err := f.Flush(source)
 
 					Expect(err).ShouldNot(HaveOccurred())
-					Expect(res).Should(Equal(source))
+					Expect(res).Should(BeNil())
 				})
 			})
 
@@ -122,7 +150,7 @@ var _ = Describe("Flusher", func() {
 					res, err := f.Flush(source)
 
 					Expect(err).ShouldNot(HaveOccurred())
-					Expect(res).Should(Equal(source))
+					Expect(res).Should(BeNil())
 				})
 			})
 
@@ -137,7 +165,7 @@ var _ = Describe("Flusher", func() {
 					res, err := f.Flush(source)
 
 					Expect(err).ShouldNot(HaveOccurred())
-					Expect(res).Should(Equal(source))
+					Expect(res).Should(BeNil())
 				})
 			})
 		})

@@ -1,0 +1,382 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/ocp-offer-api/ocp-offer-api.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/offers": {
+      "get": {
+        "summary": "ListOfferV1 - Gets a list of offers",
+        "operationId": "OcpOfferApiService_ListOfferV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiListOfferV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pagination.cursor",
+            "description": "Cursor-based pagination uses cursor and take to return a limited set of\nresults before or after a given cursor.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "pagination.take",
+            "description": "Number of items per page.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "pagination.skip",
+            "description": "The number of skipped elements, when using the cursor, the counting starts\nfrom the specified id.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "OcpOfferApiService"
+        ]
+      },
+      "post": {
+        "summary": "CreateOfferV1 - Create an offer",
+        "operationId": "OcpOfferApiService_CreateOfferV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiCreateOfferV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiCreateOfferV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "OcpOfferApiService"
+        ]
+      },
+      "put": {
+        "summary": "UpdateOfferV1 - Updates the offer",
+        "operationId": "OcpOfferApiService_UpdateOfferV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUpdateOfferV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiUpdateOfferV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "OcpOfferApiService"
+        ]
+      }
+    },
+    "/v1/offers/{offer_id}": {
+      "get": {
+        "summary": "DescribeOfferV1 - Get information about the offer",
+        "operationId": "OcpOfferApiService_DescribeOfferV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiDescribeOfferV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "offer_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "OcpOfferApiService"
+        ]
+      },
+      "delete": {
+        "summary": "RemoveOfferV1 - Removes offer",
+        "operationId": "OcpOfferApiService_RemoveOfferV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiRemoveOfferV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "offer_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "OcpOfferApiService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiCreateOfferV1Request": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "grade": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "team_id": {
+          "type": "string",
+          "format": "uint64"
+        }
+      },
+      "title": "CreateOfferV1Request"
+    },
+    "apiCreateOfferV1Response": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        }
+      },
+      "description": "CreateOfferV1Response ..."
+    },
+    "apiDescribeOfferV1Response": {
+      "type": "object",
+      "properties": {
+        "offer": {
+          "$ref": "#/definitions/apiOffer"
+        }
+      },
+      "description": "DescribeOfferV1Response ..."
+    },
+    "apiListOfferV1Response": {
+      "type": "object",
+      "properties": {
+        "pagination": {
+          "$ref": "#/definitions/apiPaginationInfo"
+        },
+        "offers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiOffer"
+          }
+        }
+      },
+      "description": "ListOfferV1Response ..."
+    },
+    "apiOffer": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "grade": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "team_id": {
+          "type": "string",
+          "format": "uint64"
+        }
+      },
+      "description": "Offer ..."
+    },
+    "apiPaginationInfo": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "string",
+          "format": "uint64",
+          "title": "Current page number"
+        },
+        "total_pages": {
+          "type": "string",
+          "format": "uint64",
+          "title": "Total pages"
+        },
+        "total_items": {
+          "type": "string",
+          "format": "uint64",
+          "title": "Total items"
+        },
+        "per_page": {
+          "type": "integer",
+          "format": "int64",
+          "title": "Items per page - max 10k"
+        },
+        "has_next_page": {
+          "type": "boolean",
+          "title": "Has next page"
+        },
+        "has_previous_page": {
+          "type": "boolean",
+          "title": "Has previous page"
+        }
+      },
+      "title": "PaginationInfo - Contains information about the current state of pagination"
+    },
+    "apiPaginationInput": {
+      "type": "object",
+      "properties": {
+        "cursor": {
+          "type": "string",
+          "format": "uint64",
+          "title": "Cursor-based pagination uses cursor and take to return a limited set of\nresults before or after a given cursor"
+        },
+        "take": {
+          "type": "integer",
+          "format": "int64",
+          "title": "Number of items per page"
+        },
+        "skip": {
+          "type": "string",
+          "format": "uint64",
+          "title": "The number of skipped elements, when using the cursor, the counting starts\nfrom the specified id"
+        }
+      },
+      "title": "PaginationInput Offset pagination uses skip and take to skip a certain number\nof results and select a limited range"
+    },
+    "apiRemoveOfferV1Response": {
+      "type": "object",
+      "description": "RemoveOfferV1Response ..."
+    },
+    "apiUpdateOfferV1Request": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "grade": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "team_id": {
+          "type": "string",
+          "format": "uint64"
+        }
+      },
+      "description": "UpdateOfferV1Request ..."
+    },
+    "apiUpdateOfferV1Response": {
+      "type": "object",
+      "description": "UpdateOfferV1Response ..."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

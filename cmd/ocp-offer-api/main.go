@@ -1,55 +1,65 @@
 package main
 
 import (
-	"bytes"
-	"fmt"
-	"log"
-	"os"
+	"context"
+	"net/http"
+
+	"net"
+
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc"
+
+	api "github.com/ozoncp/ocp-offer-api/internal/api"
+	desc "github.com/ozoncp/ocp-offer-api/pkg/ocp-offer-api"
 )
 
-// ReadFiles Принимает слайс путей и возвращает слайс считанных файлов
-func ReadFiles(files []string) ([]string, error) {
-	freader := func(fpath string) ([]byte, error) {
-		file, err := os.OpenFile(fpath, os.O_RDONLY, 0)
-		if err != nil {
-			return nil, err
-		}
+const (
+	grpcPort           = ":9090"
+	grpcServerEndpoint = "localhost:9090"
+)
 
-		defer func() {
-			if err = file.Close(); err != nil {
-				fmt.Printf("Error closing file on path: \"%s\" \n", fpath)
-				log.Fatal(err)
-			} else {
-				fmt.Printf("File on path \"%s\" has successfully closed \n", fpath)
-			}
-		}()
+func run() error {
+	l, err := net.Listen("tcp", grpcPort)
+	if err != nil {
+		log.Fatal().Msgf("failed to listen: %v", err)
+	}
+	defer l.Close()
 
-		data := new(bytes.Buffer)
+	grpcServer := grpc.NewServer()
 
-		if _, err = data.ReadFrom(file); err != nil {
-			return nil, err
-		}
+	desc.RegisterOcpOfferApiServiceServer(grpcServer, api.NewOfferAPI())
 
-		return data.Bytes(), nil
+	if err := grpcServer.Serve(l); err != nil {
+		log.Fatal().Msgf("failed to serve: %v", err)
 	}
 
-	result := make([]string, 0)
+	return nil
+}
 
-	for _, file := range files {
-		fbyte, err := freader(file)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, string(fbyte))
+func runJSON() {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithInsecure()}
+
+	err := desc.RegisterOcpOfferApiServiceHandlerFromEndpoint(ctx, mux, grpcServerEndpoint, opts)
+	if err != nil {
+		panic(err)
 	}
 
-	return result, nil
+	err = http.ListenAndServe(":8081", mux)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func main() {
+	go runJSON()
 
-	files, _ := ReadFiles([]string{"./test/test-file-1.txt", "./test/test-file-2.txt"})
-	fmt.Printf("%v\n", files)
-
-	fmt.Println("Project: ocp-offer-api")
+	if err := run(); err != nil {
+		log.Fatal().Err(err)
+	}
 }

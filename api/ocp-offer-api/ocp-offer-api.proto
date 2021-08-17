@@ -1,0 +1,138 @@
+syntax = "proto3";
+
+package ocp.offer.api;
+
+import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/ozoncp/ocp-offer-api/pkg/ocp-offer-api;ocp_offer_api";
+
+// OcpOfferApiService - Service for working with offers
+service OcpOfferApiService {
+  // CreateOfferV1 - Create an offer
+  rpc CreateOfferV1(CreateOfferV1Request) returns (CreateOfferV1Response) {
+    option (google.api.http) = {
+      post: "/v1/offers"
+      body: "*"
+    };
+  }
+
+  // DescribeOfferV1 - Get information about the offer
+  rpc DescribeOfferV1(DescribeOfferV1Request)
+      returns (DescribeOfferV1Response) {
+    option (google.api.http) = {
+      get: "/v1/offers/{offer_id}"
+    };
+  }
+
+  // ListOfferV1 - Gets a list of offers
+  rpc ListOfferV1(ListOfferV1Request) returns (ListOfferV1Response) {
+    option (google.api.http) = {
+      get: "/v1/offers"
+    };
+  }
+
+  // UpdateOfferV1 - Updates the offer
+  rpc UpdateOfferV1(UpdateOfferV1Request) returns (UpdateOfferV1Response) {
+    option (google.api.http) = {
+      put: "/v1/offers"
+      body: "*"
+    };
+  }
+
+  // RemoveOfferV1 - Removes offer
+  rpc RemoveOfferV1(RemoveOfferV1Request) returns (RemoveOfferV1Response) {
+    option (google.api.http) = {
+      delete: "/v1/offers/{offer_id}"
+    };
+  }
+}
+
+// Offer ...
+message Offer {
+  uint64 id      = 1;
+  uint64 user_id = 2;
+  uint64 grade   = 3;
+  uint64 team_id = 4;
+}
+
+// CreateOfferV1Request
+message CreateOfferV1Request {
+  uint64 user_id = 2 [(validate.rules).uint64.gt = 0];
+  uint64 grade   = 3 [(validate.rules).uint64.gt = 0];
+  uint64 team_id = 4 [(validate.rules).uint64.gt = 0];
+}
+
+// CreateOfferV1Response ...
+message CreateOfferV1Response {
+  uint64 id = 1;
+}
+
+// DescribeOfferV1Request ...
+message DescribeOfferV1Request {
+  uint64 offer_id = 1 [(validate.rules).uint64.gt = 0];
+}
+
+// DescribeOfferV1Response ...
+message DescribeOfferV1Response {
+  Offer offer = 1;
+}
+
+// ListOfferV1Request ...
+message ListOfferV1Request {
+  PaginationInput pagination = 1 [(validate.rules).message.required = true];
+}
+
+// ListOfferV1Response ...
+message ListOfferV1Response {
+  PaginationInfo pagination = 1;
+  repeated Offer offers     = 2;
+}
+
+// UpdateOfferV1Request ...
+message UpdateOfferV1Request {
+  uint64 id      = 1 [(validate.rules).uint64.gt = 0];
+  uint64 user_id = 2 [(validate.rules).uint64.gt = 0];
+  uint64 grade   = 3 [(validate.rules).uint64.gt = 0];
+  uint64 team_id = 4 [(validate.rules).uint64.gt = 0];
+}
+
+// UpdateOfferV1Response ...
+message UpdateOfferV1Response {}
+
+// RemoveOfferV1Request ...
+message RemoveOfferV1Request {
+  uint64 offer_id = 1 [(validate.rules).uint64.gt = 0];
+}
+
+// RemoveOfferV1Response ...
+message RemoveOfferV1Response {}
+
+// PaginationInfo - Contains information about the current state of pagination
+message PaginationInfo {
+  // Current page number
+  uint64 page              = 1;
+  // Total pages
+  uint64 total_pages       = 2;
+  // Total items
+  uint64 total_items       = 3;
+  // Items per page - max 10k
+  uint32 per_page          = 4;
+  // Has next page
+  bool   has_next_page     = 5;
+  // Has previous page
+  bool   has_previous_page = 6;
+}
+
+// PaginationInput Offset pagination uses skip and take to skip a certain number
+// of results and select a limited range
+message PaginationInput {
+  // Cursor-based pagination uses cursor and take to return a limited set of
+  // results before or after a given cursor
+  uint64 cursor = 1 [(validate.rules).uint64 = { gt: 0 }];
+  // Number of items per page
+  uint32 take   = 2 [(validate.rules).uint32 = { gt: 0, lte: 10000 }];
+  // The number of skipped elements, when using the cursor, the counting starts
+  // from the specified id
+  uint64 skip   = 3 [(validate.rules).uint64.gte = 0];
+}

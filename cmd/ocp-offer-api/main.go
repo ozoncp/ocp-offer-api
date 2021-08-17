@@ -19,7 +19,7 @@ const (
 	grpcServerEndpoint = "localhost:9090"
 )
 
-func run() error {
+func runGrpcServer() error {
 	l, err := net.Listen("tcp", grpcPort)
 	if err != nil {
 		log.Fatal().Msgf("failed to listen: %v", err)
@@ -37,7 +37,7 @@ func run() error {
 	return nil
 }
 
-func runJSON() {
+func runHttpServer() {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -57,9 +57,9 @@ func runJSON() {
 }
 
 func main() {
-	go runJSON()
+	go runHttpServer()
 
-	if err := run(); err != nil {
+	if err := runGrpcServer(); err != nil {
 		log.Fatal().Err(err)
 	}
 }

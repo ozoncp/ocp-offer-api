@@ -91,6 +91,7 @@ install-go-deps: .install-go-deps
 		go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
 		go get -u github.com/envoyproxy/protoc-gen-validate
 		go get -u -v github.com/yoheimuta/protolint/cmd/protolint
+		go get -u google.golang.org/grpc/test/bufconn
 		go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
 		go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
 		go install github.com/envoyproxy/protoc-gen-validate

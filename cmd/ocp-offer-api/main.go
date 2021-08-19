@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc"
 
 	api "github.com/ozoncp/ocp-offer-api/internal/api"
+	"github.com/ozoncp/ocp-offer-api/internal/repo"
 	desc "github.com/ozoncp/ocp-offer-api/pkg/ocp-offer-api"
 )
 
@@ -28,7 +29,7 @@ func runGrpcServer() error {
 
 	grpcServer := grpc.NewServer()
 
-	desc.RegisterOcpOfferApiServiceServer(grpcServer, api.NewOfferAPI())
+	desc.RegisterOcpOfferApiServiceServer(grpcServer, api.NewOfferAPI(repo.NewRepo()))
 
 	if err := grpcServer.Serve(l); err != nil {
 		log.Fatal().Msgf("failed to serve: %v", err)

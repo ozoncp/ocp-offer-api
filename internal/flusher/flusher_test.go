@@ -17,14 +17,14 @@ import (
 var _ = Describe("Flusher", func() {
 	var (
 		ctrl   *gomock.Controller
-		m      *mocks.MockRepo
+		m      *mocks.MockIRepository
 		f      flusher.Flusher
 		source []models.Offer
 	)
 
 	BeforeEach(func() {
 		ctrl = gomock.NewController(GinkgoT())
-		m = mocks.NewMockRepo(ctrl)
+		m = mocks.NewMockIRepository(ctrl)
 		source = []models.Offer{
 			{Id: 10, UserId: 20, Grade: 30, TeamId: 40},
 			{Id: 11, UserId: 21, Grade: 31, TeamId: 41},

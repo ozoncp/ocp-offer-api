@@ -22,14 +22,14 @@ var _ = Describe("Saver", func() {
 
 	var (
 		ctrl *gomock.Controller
-		m    *mocks.MockRepo
+		m    *mocks.MockIRepository
 		f    flusher.Flusher
 		s    saver.Saver
 	)
 
 	BeforeEach(func() {
 		ctrl = gomock.NewController(GinkgoT())
-		m = mocks.NewMockRepo(ctrl)
+		m = mocks.NewMockIRepository(ctrl)
 		f = flusher.NewFlusher(int(chunkSize), m)
 		s, _ = saver.NewSaver(capacity, f, duration)
 	})

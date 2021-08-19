@@ -977,11 +977,8 @@ func (m *PaginationInput) Validate() error {
 		return nil
 	}
 
-	if m.GetCursor() <= 0 {
-		return PaginationInputValidationError{
-			field:  "Cursor",
-			reason: "value must be greater than 0",
-		}
+	if m.GetCursor() != 0 {
+
 	}
 
 	if val := m.GetTake(); val <= 0 || val > 10000 {

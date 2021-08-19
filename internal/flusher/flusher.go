@@ -12,7 +12,7 @@ type Flusher interface {
 }
 
 // NewFlusher возвращает Flusher с поддержкой батчевого сохранения
-func NewFlusher(chunkSize int, offerRepo repo.Repo) Flusher {
+func NewFlusher(chunkSize int, offerRepo repo.IRepository) Flusher {
 	return &flusher{
 		chunkSize: chunkSize,
 		offerRepo: offerRepo,
@@ -21,7 +21,7 @@ func NewFlusher(chunkSize int, offerRepo repo.Repo) Flusher {
 
 type flusher struct {
 	chunkSize int
-	offerRepo repo.Repo
+	offerRepo repo.IRepository
 }
 
 // Flush добавляет офферы пачками в хранилеще

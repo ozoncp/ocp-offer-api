@@ -84,9 +84,9 @@ var _ = Describe("Saver", func() {
 		When("save returns an error", func() {
 			It("when save channel is closed ", func() {
 				m.EXPECT().
-					AddOffers(gomock.Any()).
+					MultiCreateOffer(gomock.Any(), gomock.Any()).
 					AnyTimes().
-					Return(nil)
+					Return(uint64(1), nil)
 
 				s.Close()
 				err := s.Save(models.Offer{Id: 1})
@@ -99,9 +99,9 @@ var _ = Describe("Saver", func() {
 	Context("normal case", func() {
 		It("when offers are less than capacity", func() {
 			m.EXPECT().
-				AddOffers(gomock.Any()).
+				MultiCreateOffer(gomock.Any(), gomock.Any()).
 				AnyTimes().
-				Return(nil)
+				Return(uint64(0), nil)
 
 			countOffers := int(capacity) - 1
 

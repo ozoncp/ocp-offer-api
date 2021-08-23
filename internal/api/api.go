@@ -2,26 +2,48 @@ package api
 
 import (
 	"context"
+	"time"
 
 	"github.com/ozoncp/ocp-offer-api/internal/models"
+	"github.com/ozoncp/ocp-offer-api/internal/producer"
 	"github.com/ozoncp/ocp-offer-api/internal/repo"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	desc "github.com/ozoncp/ocp-offer-api/pkg/ocp-offer-api"
+	pb "github.com/ozoncp/ocp-offer-api/pkg/ocp-offer-api"
+)
+
+var (
+	totalSuccessCreated = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "ocp_offer_api_total_success_created",
+		Help: "Total number of requests for offers successfully created",
+	})
+	totalSuccessUpdated = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "ocp_offer_api_total_success_updated",
+		Help: "Total number of requests for offers successfully updated",
+	})
+	totalSuccessDeleted = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "ocp_offer_api_total_success_deleted",
+		Help: "Total number of requests for offers successfully deleted",
+	})
 )
 
 type offerAPI struct {
-	desc.UnimplementedOcpOfferApiServiceServer
-	repo repo.IRepository
+	pb.UnimplementedOcpOfferApiServiceServer
+	repo         repo.IRepository
+	dataProducer producer.Producer
 }
 
-func NewOfferAPI(repo repo.IRepository) desc.OcpOfferApiServiceServer {
-	return &offerAPI{repo: repo}
+func NewOfferAPI(r repo.IRepository, p producer.Producer) pb.OcpOfferApiServiceServer {
+	return &offerAPI{repo: r, dataProducer: p}
 }
 
-func (o *offerAPI) CreateOfferV1(ctx context.Context, req *desc.CreateOfferV1Request) (*desc.CreateOfferV1Response, error) {
+func (o *offerAPI) CreateOfferV1(ctx context.Context, req *pb.CreateOfferV1Request) (*pb.CreateOfferV1Response, error) {
 	if err := req.Validate(); err != nil {
+		log.Error().Err(err).Msg("CreateOfferV1 - invalid argument")
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
@@ -31,25 +53,76 @@ func (o *offerAPI) CreateOfferV1(ctx context.Context, req *desc.CreateOfferV1Req
 		TeamId: req.TeamId,
 	}
 
-	if err := o.repo.CreateOffer(offer); err != nil {
-		return nil, err
+	offerId, err := o.repo.CreateOffer(ctx, offer)
+	if err != nil {
+		log.Error().Err(err).Msg("CreateOfferV1 -- failed")
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &desc.CreateOfferV1Response{}, nil
+	message := producer.CreateMessage(producer.Create, offerId, time.Now())
+
+	err = o.dataProducer.Send(message)
+	if err != nil {
+		log.Error().Err(err).Msgf("CreateOfferV1 - failed to send message to kafka")
+	}
+
+	totalSuccessCreated.Inc()
+	log.Debug().Msgf("CreateOfferV1 - success")
+
+	return &pb.CreateOfferV1Response{
+		Id: offerId,
+	}, nil
 }
 
-func (o *offerAPI) DescribeOfferV1(ctx context.Context, req *desc.DescribeOfferV1Request) (*desc.DescribeOfferV1Response, error) {
+// ----------------------------------------------------------------
+
+func (o *offerAPI) MultiCreateOfferV1(ctx context.Context, req *pb.MultiCreateOfferV1Request) (*pb.MultiCreateOfferV1Response, error) {
 	if err := req.Validate(); err != nil {
+		log.Error().Err(err).Msg("MultiCreateOfferV1 - invalid argument")
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	offer, err := o.repo.DescribeOffer(req.OfferId)
-	if err != nil {
-		return nil, status.Error(codes.Unknown, err.Error())
+	offers := make([]models.Offer, len(req.Offers))
+
+	for i, offer := range offers {
+		offers[i] = models.Offer{
+			UserId: offer.UserId,
+			TeamId: offer.TeamId,
+			Grade:  offer.Grade,
+		}
 	}
 
-	return &desc.DescribeOfferV1Response{
-		Offer: &desc.Offer{
+	count, err := o.repo.MultiCreateOffer(ctx, offers)
+	if err != nil {
+		log.Error().Err(err).Msg("MultiCreateOfferV1 -- failed")
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	log.Debug().Msgf("MultiCreateOfferV1 - success")
+
+	return &pb.MultiCreateOfferV1Response{
+		Count: count,
+	}, nil
+}
+
+// ----------------------------------------------------------------
+
+func (o *offerAPI) DescribeOfferV1(ctx context.Context, req *pb.DescribeOfferV1Request) (*pb.DescribeOfferV1Response, error) {
+	if err := req.Validate(); err != nil {
+		log.Error().Err(err).Msg("DescribeOfferV1 - invalid argument")
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	offer, err := o.repo.DescribeOffer(ctx, req.OfferId)
+	if err != nil {
+		log.Error().Err(err).Msg("DescribeOfferV1 -- failed")
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	log.Debug().Msgf("DescribeOfferV1 - success")
+
+	return &pb.DescribeOfferV1Response{
+		Offer: &pb.Offer{
 			Id:     offer.Id,
 			UserId: offer.UserId,
 			Grade:  offer.Grade,
@@ -58,24 +131,28 @@ func (o *offerAPI) DescribeOfferV1(ctx context.Context, req *desc.DescribeOfferV
 	}, nil
 }
 
-func (o *offerAPI) ListOfferV1(ctx context.Context, req *desc.ListOfferV1Request) (*desc.ListOfferV1Response, error) {
+// ----------------------------------------------------------------
+
+func (o *offerAPI) ListOfferV1(ctx context.Context, req *pb.ListOfferV1Request) (*pb.ListOfferV1Response, error) {
 	if err := req.Validate(); err != nil {
+		log.Error().Err(err).Msg("ListOfferV1 - invalid argument")
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	repoOffers, pagInfo, err := o.repo.ListOffer(models.PaginationInput{
+	repoOffers, pagInfo, err := o.repo.ListOffer(ctx, models.PaginationInput{
 		Cursor: req.Pagination.Cursor,
 		Take:   req.Pagination.Take,
 		Skip:   req.Pagination.Skip,
 	})
 	if err != nil {
-		return nil, status.Error(codes.Unknown, err.Error())
+		log.Error().Err(err).Msg("ListOfferV1 -- failed")
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	offers := make([]*desc.Offer, len(repoOffers))
+	offers := make([]*pb.Offer, len(repoOffers))
 
 	for i, val := range repoOffers {
-		offers[i] = &desc.Offer{
+		offers[i] = &pb.Offer{
 			Id:     val.Id,
 			UserId: val.UserId,
 			Grade:  val.Grade,
@@ -83,8 +160,10 @@ func (o *offerAPI) ListOfferV1(ctx context.Context, req *desc.ListOfferV1Request
 		}
 	}
 
-	return &desc.ListOfferV1Response{
-		Pagination: &desc.PaginationInfo{
+	log.Debug().Msgf("ListOfferV1 - success")
+
+	return &pb.ListOfferV1Response{
+		Pagination: &pb.PaginationInfo{
 			Page:            pagInfo.Page,
 			TotalPages:      pagInfo.TotalPages,
 			TotalItems:      pagInfo.TotalItems,
@@ -96,8 +175,11 @@ func (o *offerAPI) ListOfferV1(ctx context.Context, req *desc.ListOfferV1Request
 	}, nil
 }
 
-func (o *offerAPI) UpdateOfferV1(ctx context.Context, req *desc.UpdateOfferV1Request) (*desc.UpdateOfferV1Response, error) {
+// ----------------------------------------------------------------
+
+func (o *offerAPI) UpdateOfferV1(ctx context.Context, req *pb.UpdateOfferV1Request) (*pb.UpdateOfferV1Response, error) {
 	if err := req.Validate(); err != nil {
+		log.Error().Err(err).Msg("UpdateOfferV1 - invalid argument")
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
@@ -108,21 +190,31 @@ func (o *offerAPI) UpdateOfferV1(ctx context.Context, req *desc.UpdateOfferV1Req
 		TeamId: req.TeamId,
 	}
 
-	if err := o.repo.UpdateOffer(data); err != nil {
-		return nil, status.Error(codes.Unknown, err.Error())
+	if err := o.repo.UpdateOffer(ctx, data); err != nil {
+		log.Error().Err(err).Msg("UpdateOfferV1 -- failed")
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &desc.UpdateOfferV1Response{}, nil
+	totalSuccessUpdated.Inc()
+	log.Debug().Msgf("UpdateOfferV1 - success")
+
+	return &pb.UpdateOfferV1Response{}, nil
 }
 
-func (o *offerAPI) RemoveOfferV1(ctx context.Context, req *desc.RemoveOfferV1Request) (*desc.RemoveOfferV1Response, error) {
+func (o *offerAPI) RemoveOfferV1(ctx context.Context, req *pb.RemoveOfferV1Request) (*pb.RemoveOfferV1Response, error) {
+
 	if err := req.Validate(); err != nil {
+		log.Error().Err(err).Msg("RemoveOfferV1 - invalid argument")
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if err := o.repo.RemoveOffer(req.OfferId); err != nil {
-		return nil, status.Error(codes.Unknown, err.Error())
+	if err := o.repo.RemoveOffer(ctx, req.OfferId); err != nil {
+		log.Error().Err(err).Msg("RemoveOfferV1 -- failed")
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &desc.RemoveOfferV1Response{}, nil
+	totalSuccessDeleted.Inc()
+	log.Debug().Msgf("RemoveOfferV1 - success")
+
+	return &pb.RemoveOfferV1Response{}, nil
 }

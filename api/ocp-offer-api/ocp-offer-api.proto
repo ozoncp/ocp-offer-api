@@ -17,6 +17,15 @@ service OcpOfferApiService {
     };
   }
 
+  // MultiCreateOfferV1 - Multiple offer creation
+  rpc MultiCreateOfferV1(MultiCreateOfferV1Request)
+      returns (MultiCreateOfferV1Response) {
+    option (google.api.http) = {
+      post: "/v1/offers/multi"
+      body: "*"
+    };
+  }
+
   // DescribeOfferV1 - Get information about the offer
   rpc DescribeOfferV1(DescribeOfferV1Request)
       returns (DescribeOfferV1Response) {
@@ -56,7 +65,7 @@ message Offer {
   uint64 team_id = 4;
 }
 
-// CreateOfferV1Request
+// CreateOfferV1Request ...
 message CreateOfferV1Request {
   uint64 user_id = 2 [(validate.rules).uint64.gt = 0];
   uint64 grade   = 3 [(validate.rules).uint64.gt = 0];
@@ -66,6 +75,16 @@ message CreateOfferV1Request {
 // CreateOfferV1Response ...
 message CreateOfferV1Response {
   uint64 id = 1;
+}
+
+// MultiCreateOfferV1Request ...
+message MultiCreateOfferV1Request {
+  repeated CreateOfferV1Request offers = 1;
+}
+
+// MultiCreateOfferV1Response ...
+message MultiCreateOfferV1Response {
+  uint64 count = 1;
 }
 
 // DescribeOfferV1Request ...

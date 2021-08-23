@@ -21,3 +21,6 @@ vendor.protogen
 .idea/
 .vscode/
 .DS_Store
+
+# Environment
+.env

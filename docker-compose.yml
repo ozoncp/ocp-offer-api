@@ -1,0 +1,66 @@
+version: '3.9'
+
+services:
+  database:
+    image: postgres:latest
+    restart: always
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ocp_offer_api
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper
+    ports:
+      - '2181:2181'
+    environment:
+      zk_id: '1'
+      ZOOKEEPER_CLIENT_PORT: 32181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_SYNC_LIMIT: 2
+
+  kafka:
+    image: confluentinc/cp-kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:32181'
+      KAFKA_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://kafka:9094
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - '9090:9090'
+    depends_on:
+      - app
+    links:
+      - app
+    volumes:
+      - './prometheus.yml:/etc/prometheus/prometheus.yml'
+
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - '50051:50051' # gRPC
+      - '8080:8080' # Gateway
+      - '9100:9100' # Metrics prometheus
+    depends_on:
+      - database
+      - kafka
+    links:
+      - database
+      - kafka
+    volumes:
+      - './config.yml:/root/config.yml'
+
+volumes:
+  pgdata:

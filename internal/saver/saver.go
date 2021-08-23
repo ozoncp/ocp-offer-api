@@ -1,6 +1,7 @@
 package saver
 
 import (
+	"context"
 	"sync"
 	"time"
 
@@ -51,7 +52,7 @@ func NewSaver(capacity uint, flusher flusher.Flusher, duration time.Duration) (S
 		defer func() {
 			s.tiker.Stop()
 			close(s.offersChan)
-			s.flusher.Flush(s.offers)
+			s.flusher.Flush(context.TODO(), s.offers)
 		}()
 
 		for {
@@ -92,7 +93,7 @@ func (s *saver) Save(offer models.Offer) error {
 
 func (s *saver) flushOffers() {
 	// возращает не добавленные в хранилище элементы и ошибку
-	unsavedOffers, _ := s.flusher.Flush(s.offers)
+	unsavedOffers, _ := s.flusher.Flush(context.TODO(), s.offers)
 
 	// оставляем только не сохранёные
 	s.offers = s.offers[:0]

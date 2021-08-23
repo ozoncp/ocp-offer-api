@@ -29,12 +29,12 @@ func createGatewayServer(grpcAddr, gatewayAddr string) *http.Server {
 		grpc.WithInsecure(),
 	)
 	if err != nil {
-		log.Fatal().Msgf("failed to dial server: %w", err)
+		log.Fatal().Err(err).Msg("Failed to dial server")
 	}
 
 	mux := runtime.NewServeMux()
 	if err := pb.RegisterOcpOfferApiServiceHandler(context.Background(), mux, conn); err != nil {
-		log.Fatal().Err(err)
+		log.Fatal().Err(err).Msg("Failed registration handler")
 	}
 
 	gatewayServer := &http.Server{

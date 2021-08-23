@@ -32,7 +32,7 @@ func main() {
 	tracer.InitTracing("ocp_offer_api")
 
 	if err := server.NewGrpcServer(db, batchSize).Start(); err != nil {
-		log.Fatal().Err(err)
+		log.Fatal().Err(err).Msg("Failed creating gRPC server")
 	}
 }
 

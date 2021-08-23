@@ -55,7 +55,7 @@ func (s *GrpcServer) Start() error {
 	go func() {
 		log.Info().Msgf("Gateway server is running on %s", gatewayAddr)
 		if err := gatewayServer.ListenAndServe(); err != nil {
-			log.Fatal().Err(err)
+			log.Fatal().Err(err).Msg("Failed running gateway server")
 			cancel()
 		}
 	}()
@@ -65,14 +65,14 @@ func (s *GrpcServer) Start() error {
 	go func() {
 		log.Info().Msgf("Metrics server is running on %s", metricsAddr)
 		if err := metricsServer.ListenAndServe(); err != nil {
-			log.Fatal().Err(err)
+			log.Fatal().Err(err).Msg("Failed running metrics server")
 			cancel()
 		}
 	}()
 
 	l, err := net.Listen("tcp", grpcAddr)
 	if err != nil {
-		log.Fatal().Msgf("failed to listen: %v", err)
+		log.Fatal().Err(err).Msg("Failed to listen")
 	}
 	defer l.Close()
 
@@ -103,7 +103,7 @@ func (s *GrpcServer) Start() error {
 	go func() {
 		log.Info().Msgf("GRPC Server is listening on: %s", grpcAddr)
 		if err := grpcServer.Serve(l); err != nil {
-			log.Fatal().Err(err).Msgf("failed to serve: %v", err)
+			log.Fatal().Err(err).Msg("Failed running gRPC server")
 		}
 	}()
 

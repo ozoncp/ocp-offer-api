@@ -63,11 +63,11 @@ func (o *offerAPI) CreateOfferV1(ctx context.Context, req *pb.CreateOfferV1Reque
 
 	err = o.dataProducer.Send(message)
 	if err != nil {
-		log.Error().Err(err).Msgf("CreateOfferV1 - failed to send message to kafka")
+		log.Error().Err(err).Msg("CreateOfferV1 - failed to send message to kafka")
 	}
 
 	totalSuccessCreated.Inc()
-	log.Debug().Msgf("CreateOfferV1 - success")
+	log.Debug().Msg("CreateOfferV1 - success")
 
 	return &pb.CreateOfferV1Response{
 		Id: offerId,
@@ -84,7 +84,7 @@ func (o *offerAPI) MultiCreateOfferV1(ctx context.Context, req *pb.MultiCreateOf
 
 	offers := make([]models.Offer, len(req.Offers))
 
-	for i, offer := range offers {
+	for i, offer := range req.Offers {
 		offers[i] = models.Offer{
 			UserId: offer.UserId,
 			TeamId: offer.TeamId,
@@ -98,7 +98,7 @@ func (o *offerAPI) MultiCreateOfferV1(ctx context.Context, req *pb.MultiCreateOf
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	log.Debug().Msgf("MultiCreateOfferV1 - success")
+	log.Debug().Msg("MultiCreateOfferV1 - success")
 
 	return &pb.MultiCreateOfferV1Response{
 		Count: count,
@@ -119,7 +119,7 @@ func (o *offerAPI) DescribeOfferV1(ctx context.Context, req *pb.DescribeOfferV1R
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	log.Debug().Msgf("DescribeOfferV1 - success")
+	log.Debug().Msg("DescribeOfferV1 - success")
 
 	return &pb.DescribeOfferV1Response{
 		Offer: &pb.Offer{
@@ -140,9 +140,8 @@ func (o *offerAPI) ListOfferV1(ctx context.Context, req *pb.ListOfferV1Request) 
 	}
 
 	repoOffers, pagInfo, err := o.repo.ListOffer(ctx, models.PaginationInput{
-		Cursor: req.Pagination.Cursor,
-		Take:   req.Pagination.Take,
-		Skip:   req.Pagination.Skip,
+		Take: req.Pagination.Take,
+		Skip: req.Pagination.Skip,
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("ListOfferV1 -- failed")
@@ -160,7 +159,7 @@ func (o *offerAPI) ListOfferV1(ctx context.Context, req *pb.ListOfferV1Request) 
 		}
 	}
 
-	log.Debug().Msgf("ListOfferV1 - success")
+	log.Debug().Msg("ListOfferV1 - success")
 
 	return &pb.ListOfferV1Response{
 		Pagination: &pb.PaginationInfo{
@@ -196,7 +195,7 @@ func (o *offerAPI) UpdateOfferV1(ctx context.Context, req *pb.UpdateOfferV1Reque
 	}
 
 	totalSuccessUpdated.Inc()
-	log.Debug().Msgf("UpdateOfferV1 - success")
+	log.Debug().Msg("UpdateOfferV1 - success")
 
 	return &pb.UpdateOfferV1Response{}, nil
 }
@@ -214,7 +213,7 @@ func (o *offerAPI) RemoveOfferV1(ctx context.Context, req *pb.RemoveOfferV1Reque
 	}
 
 	totalSuccessDeleted.Inc()
-	log.Debug().Msgf("RemoveOfferV1 - success")
+	log.Debug().Msg("RemoveOfferV1 - success")
 
 	return &pb.RemoveOfferV1Response{}, nil
 }

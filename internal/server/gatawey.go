@@ -4,7 +4,10 @@ import (
 	"context"
 	"net/http"
 
+	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/ext"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/rs/zerolog/log"
@@ -26,6 +29,11 @@ func createGatewayServer(grpcAddr, gatewayAddr string) *http.Server {
 	conn, err := grpc.DialContext(
 		context.Background(),
 		grpcAddr,
+		grpc.WithUnaryInterceptor(
+			grpc_opentracing.UnaryClientInterceptor(
+				grpc_opentracing.WithTracer(opentracing.GlobalTracer()),
+			),
+		),
 		grpc.WithInsecure(),
 	)
 	if err != nil {
@@ -38,18 +46,31 @@ func createGatewayServer(grpcAddr, gatewayAddr string) *http.Server {
 	}
 
 	gatewayServer := &http.Server{
-		Addr: gatewayAddr,
-		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if r.URL.Path == "/health" {
-				w.WriteHeader(http.StatusOK)
-				return
-			}
-
-			httpTotalRequests.Inc()
-
-			mux.ServeHTTP(w, r)
-		}),
+		Addr:    gatewayAddr,
+		Handler: tracingWrapper(mux),
 	}
 
 	return gatewayServer
+}
+
+var grpcGatewayTag = opentracing.Tag{Key: string(ext.Component), Value: "grpc-gateway"}
+
+func tracingWrapper(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		httpTotalRequests.Inc()
+		parentSpanContext, err := opentracing.GlobalTracer().Extract(
+			opentracing.HTTPHeaders,
+			opentracing.HTTPHeadersCarrier(r.Header))
+		if err == nil || err == opentracing.ErrSpanContextNotFound {
+			serverSpan := opentracing.GlobalTracer().StartSpan(
+				"ServeHTTP",
+				// this is magical, it attaches the new span to the parent parentSpanContext, and creates an unparented one if empty.
+				ext.RPCServerOption(parentSpanContext),
+				grpcGatewayTag,
+			)
+			r = r.WithContext(opentracing.ContextWithSpan(r.Context(), serverSpan))
+			defer serverSpan.Finish()
+		}
+		h.ServeHTTP(w, r)
+	})
 }

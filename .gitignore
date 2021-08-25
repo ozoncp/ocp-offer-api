@@ -24,3 +24,4 @@ vendor.protogen
 
 # Environment
 .env
+__debug_bin

@@ -1128,9 +1128,7 @@ func (m *PaginationInput) Validate() error {
 		return nil
 	}
 
-	if m.GetCursor() != 0 {
-
-	}
+	// no validation rules for Cursor
 
 	if val := m.GetTake(); val <= 0 || val > 10000 {
 		return PaginationInputValidationError{

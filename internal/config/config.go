@@ -24,59 +24,59 @@ var (
 
 // config - microservice config
 type config struct {
-	Project  project  `yaml:"Project"`
-	GRPC     gRPC     `yaml:"GRPC"`
-	Gateway  gateway  `yaml:"Gateway"`
-	Metrics  metrics  `yaml:"Metrics"`
-	Database database `yaml:"Database"`
-	Kafka    kafka    `yaml:"Kafka"`
+	Project  project  `yaml:"project"`
+	GRPC     gRPC     `yaml:"grpc"`
+	Gateway  gateway  `yaml:"gateway"`
+	Metrics  metrics  `yaml:"metrics"`
+	Database database `yaml:"database"`
+	Kafka    kafka    `yaml:"kafka"`
 }
 
 // gRPC config
 type project struct {
-	Name        string `yaml:"Name"`
-	Version     string `yaml:"Version"`
-	Environment string `yaml:"Environment"`
-	Debug       bool   `yaml:"Debug"`
+	Name        string `yaml:"name"`
+	Version     string `yaml:"version"`
+	Environment string `yaml:"environment"`
+	Debug       bool   `yaml:"debug"`
 }
 
 // gRPC config
 type gRPC struct {
-	Host              string `yaml:"Host" env:"GRPC_HOST"`
-	Port              int    `yaml:"Port" env:"GRPC_PORT"`
-	MaxConnectionIdle int64  `yaml:"MaxConnectionIdle" env:"GRPC_MAX_CONN_IDLE"`
-	Timeout           int64  `yaml:"Timeout" env:"GRPC_TIMEOUT"`
-	MaxConnectionAge  int64  `yaml:"MaxConnectionAge" env:"GRPC_CONN_AGE"`
+	Host              string `yaml:"host" env:"GRPC_HOST"`
+	Port              int    `yaml:"port" env:"GRPC_PORT"`
+	MaxConnectionIdle int64  `yaml:"maxConnectionIdle" env:"GRPC_MAX_CONN_IDLE"`
+	Timeout           int64  `yaml:"timeout" env:"GRPC_TIMEOUT"`
+	MaxConnectionAge  int64  `yaml:"maxConnectionAge" env:"GRPC_CONN_AGE"`
 }
 
 // gateway config
 type gateway struct {
-	Host string `yaml:"Host" env:"GATEWAY_HOST"`
-	Port int    `yaml:"Port" env:"GATEWAY_PORT"`
+	Host string `yaml:"host" env:"GATEWAY_HOST"`
+	Port int    `yaml:"port" env:"GATEWAY_PORT"`
 }
 
 type metrics struct {
-	Host string `yaml:"Host" env:"METRICS_HOST"`
-	Port int    `yaml:"Port" env:"METRICS_PORT"`
-	Path string `yaml:"Path" env:"METRICS_PATH"`
+	Host string `yaml:"host" env:"METRICS_HOST"`
+	Port int    `yaml:"port" env:"METRICS_PORT"`
+	Path string `yaml:"path" env:"METRICS_PATH"`
 }
 
 // Postgres config
 type database struct {
-	Host     string `yaml:"Host" env:"DATABASE_HOST"`
-	Port     int    `yaml:"Port" env:"DATABASE_PORT"`
-	User     string `yaml:"User" env:"DATABASE_USER"`
-	Password string `yaml:"Password" env:"DATABASE_PASSWORD"`
-	Name     string `yaml:"Name" env:"DATABASE_NAME"`
-	SSLMode  string `yaml:"SslMode" env:"DATABASE_SSL_MODE"`
-	Driver   string `yaml:"Driver" env:"DATABASE_DRIVER"`
+	Host     string `yaml:"host" env:"DATABASE_HOST"`
+	Port     int    `yaml:"port" env:"DATABASE_PORT"`
+	User     string `yaml:"user" env:"DATABASE_USER"`
+	Password string `yaml:"password" env:"DATABASE_PASSWORD"`
+	Name     string `yaml:"name" env:"DATABASE_NAME"`
+	SSLMode  string `yaml:"sslMode" env:"DATABASE_SSL_MODE"`
+	Driver   string `yaml:"driver" env:"DATABASE_DRIVER"`
 }
 
 // Postgres config
 type kafka struct {
-	Brokers  []string `yaml:"Brokers"`
-	Topic    string   `yaml:"Topic"`
-	Capacity uint64   `yaml:"Capacity"`
+	Brokers  []string `yaml:"brokers"`
+	Topic    string   `yaml:"topic"`
+	Capacity uint64   `yaml:"capacity"`
 }
 
 var fileConfig = "config.yml"
@@ -87,10 +87,11 @@ func init() {
 	doOnce.Do(func() {
 		if err := UpdateConfig(); err != nil {
 			log.Fatal().Err(err).Msg("Configuration initialization failed")
-		} else {
-			log.Info().Msg("Config initialization was successful")
 			return
 		}
+
+		log.Info().Msg("Config initialization was successful")
+
 	})
 }
 

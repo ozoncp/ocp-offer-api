@@ -14,11 +14,7 @@ type PaginationInfo struct {
 type PaginationInput struct {
 	// Number of items per page
 	Take uint32
-	// Cursor-based pagination uses cursor and take to return a limited set of
-	// results before or after a given cursor
-	Cursor uint64
-	// The number of skipped elements, when using the cursor, the counting starts
-	// from the specified id
+	// The number of skipped elements
 	Skip uint64
 }
 

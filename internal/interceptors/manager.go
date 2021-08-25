@@ -39,7 +39,7 @@ func (im *interceptorManager) Logger(
 	reply, err := handler(ctx, req)
 	log.Info().
 		Str("Method", info.FullMethod).
-		TimeDiff("latency", time.Now(), start).
+		Dur("latency", time.Since(start)).
 		Send()
 
 	return reply, err

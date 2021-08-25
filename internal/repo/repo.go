@@ -131,18 +131,22 @@ func (r *Repository) DescribeOffer(ctx context.Context, offerId uint64) (*models
 }
 
 func (r *Repository) ListOffer(ctx context.Context, pagination models.PaginationInput) ([]models.Offer, *models.PaginationInfo, error) {
-
-	rawQuery := `
-		SELECT id, user_id, team_id, grade FROM offer,
-		(SELECT id as offer_id FROM offer WHERE id = $1) AS order_cmp
-		WHERE id >= order_cmp.offer_id ORDER BY id ASC LIMIT $2 OFFSET $3
-	`
+	query := sq.
+		Select("id", "user_id", "team_id", "grade").
+		From("offer").
+		Limit(uint64(pagination.Take)).
+		Offset(pagination.Skip).
+		OrderBy("id ASC").
+		RunWith(r.db).
+		PlaceholderFormat(sq.Dollar)
 
 	var offers []models.Offer
-	rows, err := r.db.QueryContext(ctx, rawQuery, pagination.Cursor, pagination.Take, pagination.Skip)
+	rows, err := query.QueryContext(ctx)
+
 	if err != nil {
 		return nil, nil, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var offer models.Offer

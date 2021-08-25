@@ -32,7 +32,6 @@
         "parameters": [
           {
             "name": "pagination.cursor",
-            "description": "Cursor-based pagination uses cursor and take to return a limited set of\nresults before or after a given cursor.",
             "in": "query",
             "required": false,
             "type": "string",
@@ -354,8 +353,7 @@
       "properties": {
         "cursor": {
           "type": "string",
-          "format": "uint64",
-          "title": "Cursor-based pagination uses cursor and take to return a limited set of\nresults before or after a given cursor"
+          "format": "uint64"
         },
         "take": {
           "type": "integer",

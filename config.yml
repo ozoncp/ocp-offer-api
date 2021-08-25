@@ -1,36 +1,36 @@
-Project:
-  Name: Ozon Code Platform Offer API
-  Version: v0.8.0
-  Debug: true
-  Environment: development
+project:
+  name: Ozon Code Platform Offer API
+  version: v0.8.0
+  debug: true
+  environment: development
 
-GRPC:
-  Host: 0.0.0.0
-  Port: 50051
-  MaxConnectionIdle: 5 # Minutes
-  Timeout: 15 # Seconds
-  MaxConnectionAge: 5 # Minutes
+grpc:
+  host: 0.0.0.0
+  port: 50051
+  maxConnectionIdle: 5 # Minutes
+  timeout: 15 # Seconds
+  maxConnectionAge: 5 # Minutes
 
-Gateway:
-  Host: 0.0.0.0
-  Port: 8080
+gateway:
+  host: 0.0.0.0
+  port: 8080
 
-Metrics:
-  Host: 0.0.0.0
-  Port: 9100
-  Path: /metrics
+metrics:
+  host: 0.0.0.0
+  port: 9100
+  path: /metrics
 
-Database:
-  Host: database
-  Port: 5432
-  User: postgres
-  Password: postgres
-  Name: ocp_offer_api
-  SslMode: disable
-  Driver: pgx
+database:
+  host: database
+  port: 5432
+  user: postgres
+  password: postgres
+  name: ocp_offer_api
+  sslMode: disable
+  driver: pgx
 
-Kafka:
-  Topic: "ocp-offer-api"
-  Brokers:
+kafka:
+  topic: "ocp-offer-api"
+  brokers:
     - "kafka:9092"
-  Capacity: 512
+  capacity: 512

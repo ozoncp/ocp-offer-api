@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -34,53 +35,40 @@ func (m *MockIRepository) EXPECT() *MockIRepositoryMockRecorder {
 	return m.recorder
 }
 
-// AddOffers mocks base method.
-func (m *MockIRepository) AddOffers(arg0 []models.Offer) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddOffers", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// AddOffers indicates an expected call of AddOffers.
-func (mr *MockIRepositoryMockRecorder) AddOffers(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddOffers", reflect.TypeOf((*MockIRepository)(nil).AddOffers), arg0)
-}
-
 // CreateOffer mocks base method.
-func (m *MockIRepository) CreateOffer(arg0 models.Offer) error {
+func (m *MockIRepository) CreateOffer(arg0 context.Context, arg1 models.Offer) (uint64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateOffer", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret := m.ctrl.Call(m, "CreateOffer", arg0, arg1)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // CreateOffer indicates an expected call of CreateOffer.
-func (mr *MockIRepositoryMockRecorder) CreateOffer(arg0 interface{}) *gomock.Call {
+func (mr *MockIRepositoryMockRecorder) CreateOffer(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOffer", reflect.TypeOf((*MockIRepository)(nil).CreateOffer), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOffer", reflect.TypeOf((*MockIRepository)(nil).CreateOffer), arg0, arg1)
 }
 
 // DescribeOffer mocks base method.
-func (m *MockIRepository) DescribeOffer(arg0 uint64) (*models.Offer, error) {
+func (m *MockIRepository) DescribeOffer(arg0 context.Context, arg1 uint64) (*models.Offer, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DescribeOffer", arg0)
+	ret := m.ctrl.Call(m, "DescribeOffer", arg0, arg1)
 	ret0, _ := ret[0].(*models.Offer)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // DescribeOffer indicates an expected call of DescribeOffer.
-func (mr *MockIRepositoryMockRecorder) DescribeOffer(arg0 interface{}) *gomock.Call {
+func (mr *MockIRepositoryMockRecorder) DescribeOffer(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeOffer", reflect.TypeOf((*MockIRepository)(nil).DescribeOffer), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeOffer", reflect.TypeOf((*MockIRepository)(nil).DescribeOffer), arg0, arg1)
 }
 
 // ListOffer mocks base method.
-func (m *MockIRepository) ListOffer(arg0 models.PaginationInput) ([]models.Offer, *models.PaginationInfo, error) {
+func (m *MockIRepository) ListOffer(arg0 context.Context, arg1 models.PaginationInput) ([]models.Offer, *models.PaginationInfo, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListOffer", arg0)
+	ret := m.ctrl.Call(m, "ListOffer", arg0, arg1)
 	ret0, _ := ret[0].([]models.Offer)
 	ret1, _ := ret[1].(*models.PaginationInfo)
 	ret2, _ := ret[2].(error)
@@ -88,35 +76,50 @@ func (m *MockIRepository) ListOffer(arg0 models.PaginationInput) ([]models.Offer
 }
 
 // ListOffer indicates an expected call of ListOffer.
-func (mr *MockIRepositoryMockRecorder) ListOffer(arg0 interface{}) *gomock.Call {
+func (mr *MockIRepositoryMockRecorder) ListOffer(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListOffer", reflect.TypeOf((*MockIRepository)(nil).ListOffer), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListOffer", reflect.TypeOf((*MockIRepository)(nil).ListOffer), arg0, arg1)
+}
+
+// MultiCreateOffer mocks base method.
+func (m *MockIRepository) MultiCreateOffer(arg0 context.Context, arg1 []models.Offer) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MultiCreateOffer", arg0, arg1)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MultiCreateOffer indicates an expected call of MultiCreateOffer.
+func (mr *MockIRepositoryMockRecorder) MultiCreateOffer(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MultiCreateOffer", reflect.TypeOf((*MockIRepository)(nil).MultiCreateOffer), arg0, arg1)
 }
 
 // RemoveOffer mocks base method.
-func (m *MockIRepository) RemoveOffer(arg0 uint64) error {
+func (m *MockIRepository) RemoveOffer(arg0 context.Context, arg1 uint64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveOffer", arg0)
+	ret := m.ctrl.Call(m, "RemoveOffer", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // RemoveOffer indicates an expected call of RemoveOffer.
-func (mr *MockIRepositoryMockRecorder) RemoveOffer(arg0 interface{}) *gomock.Call {
+func (mr *MockIRepositoryMockRecorder) RemoveOffer(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveOffer", reflect.TypeOf((*MockIRepository)(nil).RemoveOffer), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveOffer", reflect.TypeOf((*MockIRepository)(nil).RemoveOffer), arg0, arg1)
 }
 
 // UpdateOffer mocks base method.
-func (m *MockIRepository) UpdateOffer(arg0 models.Offer) error {
+func (m *MockIRepository) UpdateOffer(arg0 context.Context, arg1 models.Offer) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateOffer", arg0)
+	ret := m.ctrl.Call(m, "UpdateOffer", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateOffer indicates an expected call of UpdateOffer.
-func (mr *MockIRepositoryMockRecorder) UpdateOffer(arg0 interface{}) *gomock.Call {
+func (mr *MockIRepositoryMockRecorder) UpdateOffer(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOffer", reflect.TypeOf((*MockIRepository)(nil).UpdateOffer), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOffer", reflect.TypeOf((*MockIRepository)(nil).UpdateOffer), arg0, arg1)
 }

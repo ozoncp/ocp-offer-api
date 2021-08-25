@@ -32,7 +32,6 @@
         "parameters": [
           {
             "name": "pagination.cursor",
-            "description": "Cursor-based pagination uses cursor and take to return a limited set of\nresults before or after a given cursor.",
             "in": "query",
             "required": false,
             "type": "string",
@@ -122,6 +121,39 @@
         ]
       }
     },
+    "/v1/offers/multi": {
+      "post": {
+        "summary": "MultiCreateOfferV1 - Multiple offer creation",
+        "operationId": "OcpOfferApiService_MultiCreateOfferV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiMultiCreateOfferV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiMultiCreateOfferV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "OcpOfferApiService"
+        ]
+      }
+    },
     "/v1/offers/{offer_id}": {
       "get": {
         "summary": "DescribeOfferV1 - Get information about the offer",
@@ -202,7 +234,7 @@
           "format": "uint64"
         }
       },
-      "title": "CreateOfferV1Request"
+      "description": "CreateOfferV1Request ..."
     },
     "apiCreateOfferV1Response": {
       "type": "object",
@@ -237,6 +269,28 @@
         }
       },
       "description": "ListOfferV1Response ..."
+    },
+    "apiMultiCreateOfferV1Request": {
+      "type": "object",
+      "properties": {
+        "offers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiCreateOfferV1Request"
+          }
+        }
+      },
+      "description": "MultiCreateOfferV1Request ..."
+    },
+    "apiMultiCreateOfferV1Response": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "string",
+          "format": "uint64"
+        }
+      },
+      "description": "MultiCreateOfferV1Response ..."
     },
     "apiOffer": {
       "type": "object",
@@ -299,8 +353,7 @@
       "properties": {
         "cursor": {
           "type": "string",
-          "format": "uint64",
-          "title": "Cursor-based pagination uses cursor and take to return a limited set of\nresults before or after a given cursor"
+          "format": "uint64"
         },
         "take": {
           "type": "integer",

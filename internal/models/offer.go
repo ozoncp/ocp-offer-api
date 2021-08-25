@@ -6,10 +6,10 @@ import (
 
 // Offer - информаци о выданном офере обучающемуся
 type Offer struct {
-	Id     uint64
-	UserId uint64
-	Grade  uint64
-	TeamId uint64
+	Id     uint64 `db:"id"`
+	UserId uint64 `db:"user_id"`
+	TeamId uint64 `db:"team_id"`
+	Grade  uint64 `db:"grade"`
 }
 
 func (o *Offer) String() string {

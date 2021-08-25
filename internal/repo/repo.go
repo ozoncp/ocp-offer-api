@@ -1,66 +1,185 @@
 package repo
 
 import (
+	"context"
+	"fmt"
+	"unsafe"
+
+	sq "github.com/Masterminds/squirrel"
+	"github.com/jmoiron/sqlx"
+	"github.com/opentracing/opentracing-go"
+
 	"github.com/ozoncp/ocp-offer-api/internal/models"
-	log "github.com/rs/zerolog/log"
+	utils "github.com/ozoncp/ocp-offer-api/internal/utils/models"
 )
 
 type IRepository interface {
-	AddOffers(offers []models.Offer) error
-	CreateOffer(offer models.Offer) error
-	UpdateOffer(offer models.Offer) error
-	DescribeOffer(offerId uint64) (*models.Offer, error)
-	ListOffer(pagination models.PaginationInput) ([]models.Offer, *models.PaginationInfo, error)
-	RemoveOffer(offerId uint64) error
+	MultiCreateOffer(ctx context.Context, offers []models.Offer) (uint64, error)
+	CreateOffer(ctx context.Context, offer models.Offer) (uint64, error)
+	UpdateOffer(ctx context.Context, offer models.Offer) error
+	DescribeOffer(ctx context.Context, offerId uint64) (*models.Offer, error)
+	ListOffer(ctx context.Context, pagination models.PaginationInput) ([]models.Offer, *models.PaginationInfo, error)
+	RemoveOffer(ctx context.Context, offerId uint64) error
 }
 
-type Repository struct{}
-
-func NewRepo() IRepository {
-	return &Repository{}
+type Repository struct {
+	db        *sqlx.DB
+	batchSize uint
 }
 
-func (r *Repository) AddOffers(offers []models.Offer) error {
-	log.Printf("AddOffers offers: %v", offers)
+func NewRepo(db *sqlx.DB, batchSize uint) IRepository {
 
-	return nil
+	return &Repository{db: db, batchSize: batchSize}
 }
 
-func (r *Repository) CreateOffer(offer models.Offer) error {
-	log.Printf("CreateOffer offer: %v", offer)
+func (r *Repository) MultiCreateOffer(ctx context.Context, offers []models.Offer) (uint64, error) {
+	tracer := opentracing.GlobalTracer()
+	span := tracer.StartSpan("MultiCreateOffer global")
+	defer span.Finish()
 
-	return nil
-}
+	var countCreated uint64 = 0
 
-func (r *Repository) UpdateOffer(offer models.Offer) error {
-	log.Printf("UpdateOffer offer: %v", offer)
-
-	return nil
-}
-
-func (r *Repository) DescribeOffer(offerId uint64) (*models.Offer, error) {
-	log.Printf("DescribeOffer offerId: %v", offerId)
-
-	return &models.Offer{}, nil
-}
-
-func (r *Repository) ListOffer(pagination models.PaginationInput) ([]models.Offer, *models.PaginationInfo, error) {
-	log.Printf("ListOffer pagination: %v", pagination)
-
-	pagInfo := &models.PaginationInfo{
-		Page:            1,
-		TotalPages:      1,
-		TotalItems:      1,
-		PerPage:         pagination.Take,
-		HasNextPage:     false,
-		HasPreviousPage: false,
+	batches, err := utils.SplitOffersToBatches(offers, r.batchSize)
+	if err != nil {
+		return countCreated, err
 	}
 
-	return []models.Offer{{Id: 1, UserId: 1, Grade: 1, TeamId: 1}}, pagInfo, nil
+	for index, batch := range batches {
+		childSpan := tracer.StartSpan(
+			fmt.Sprintf("MultiCreateOffer for chunk %d, count of bytes: %d", index, len(batch)*int(unsafe.Sizeof(models.Offer{}))),
+			opentracing.ChildOf(span.Context()),
+		)
+		defer childSpan.Finish()
+
+		query := sq.
+			Insert("offer").
+			Columns("user_id", "team_id", "grade").
+			RunWith(r.db).
+			PlaceholderFormat(sq.Dollar)
+
+		for _, offer := range batch {
+			query = query.Values(offer.UserId, offer.TeamId, offer.Grade)
+		}
+
+		result, err := query.ExecContext(ctx)
+
+		if err != nil {
+			return countCreated, err
+		}
+
+		rowsAffected, err := result.RowsAffected()
+
+		if err != nil {
+			return countCreated, err
+		}
+
+		countCreated = countCreated + uint64(rowsAffected)
+	}
+
+	return countCreated, nil
 }
 
-func (r *Repository) RemoveOffer(offerId uint64) error {
-	log.Printf("RemoveOffer offerId: %v", offerId)
+func (r *Repository) CreateOffer(ctx context.Context, offer models.Offer) (uint64, error) {
+	query := sq.
+		Insert("offer").
+		Columns("user_id", "team_id", "grade").
+		Values(offer.UserId, offer.TeamId, offer.Grade).
+		Suffix("RETURNING id").
+		RunWith(r.db).
+		PlaceholderFormat(sq.Dollar)
 
-	return nil
+	var offerId uint64 = 0
+	if err := query.QueryRowContext(ctx).Scan(&offerId); err != nil {
+		return 0, err
+	}
+
+	return offerId, nil
+}
+
+func (r *Repository) UpdateOffer(ctx context.Context, offer models.Offer) error {
+	_, err := sq.
+		Update("offer").
+		Set("user_id", offer.UserId).
+		Set("team_id", offer.TeamId).
+		Set("grade", offer.Grade).
+		Where(sq.Eq{"id": offer.Id}).
+		RunWith(r.db).
+		PlaceholderFormat(sq.Dollar).
+		ExecContext(ctx)
+
+	return err
+}
+
+func (r *Repository) DescribeOffer(ctx context.Context, offerId uint64) (*models.Offer, error) {
+	query := sq.
+		Select("id", "user_id", "team_id", "grade").
+		From("offer").
+		Where(sq.Eq{"id": offerId}).
+		RunWith(r.db).
+		PlaceholderFormat(sq.Dollar)
+
+	var offer models.Offer
+
+	err := query.QueryRowContext(ctx).
+		Scan(&offer.Id, &offer.UserId, &offer.TeamId, &offer.Grade)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &offer, nil
+}
+
+func (r *Repository) ListOffer(ctx context.Context, pagination models.PaginationInput) ([]models.Offer, *models.PaginationInfo, error) {
+	query := sq.
+		Select("id", "user_id", "team_id", "grade").
+		From("offer").
+		Limit(uint64(pagination.Take)).
+		Offset(pagination.Skip).
+		OrderBy("id ASC").
+		RunWith(r.db).
+		PlaceholderFormat(sq.Dollar)
+
+	var offers []models.Offer
+	rows, err := query.QueryContext(ctx)
+
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var offer models.Offer
+		if err = rows.Scan(
+			&offer.Id,
+			&offer.UserId,
+			&offer.TeamId,
+			&offer.Grade,
+		); err != nil {
+			return nil, nil, err
+		}
+		offers = append(offers, offer)
+	}
+
+	var totalItems uint64
+	if err := r.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM offer").Scan(&totalItems); err != nil {
+		return nil, nil, err
+	}
+
+	perPage := uint32(len(offers))
+
+	pagInfo := pagination.GetPaginationInfo(perPage, totalItems)
+
+	return offers, pagInfo, nil
+}
+
+func (r *Repository) RemoveOffer(ctx context.Context, offerId uint64) error {
+	_, err := sq.
+		Delete("offer").
+		Where(sq.Eq{"id": offerId}).
+		RunWith(r.db).
+		PlaceholderFormat(sq.Dollar).
+		ExecContext(ctx)
+
+	return err
 }

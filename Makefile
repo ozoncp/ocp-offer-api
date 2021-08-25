@@ -1,8 +1,12 @@
 LOCAL_BIN:=$(CURDIR)/bin
 
 
-run:
-	go run cmd/ocp-offer-api/main.go
+.PHONY: run
+grpc-server:
+	go run cmd/grpc-server/main.go
+
+kafka-consumer:
+	go run cmd/kafka-consumer/main.go
 
 
 lint:
@@ -26,7 +30,7 @@ generate: .vendor-proto .generate
 .vendor-proto:
 		mkdir -p vendor.protogen
 		mkdir -p vendor.protogen/api/ocp-offer-api
-		cp api/ocp-offer-api/*.proto vendor.protogen/api/ocp-offer-api
+		yes | cp -rf api/ocp-offer-api/*.proto vendor.protogen/api/ocp-offer-api
 		@if [ ! -d vendor.protogen/google ]; then \
 			git clone https://github.com/googleapis/googleapis vendor.protogen/googleapis &&\
 			mkdir -p  vendor.protogen/google/ &&\
@@ -54,7 +58,7 @@ generate: .vendor-proto .generate
 				api/ocp-offer-api/ocp-offer-api.proto
 		mv pkg/ocp-offer-api/github.com/ozoncp/ocp-offer-api/pkg/ocp-offer-api/* pkg/ocp-offer-api/
 		rm -rf pkg/ocp-offer-api/github.com
-		mkdir -p cmd/ocp-offer-api
+		mkdir -p cmd/grpc-server
 		cd pkg/ocp-offer-api && ls go.mod || go mod init github.com/ozoncp/ocp-offer-api/pkg/ocp-offer-api && go mod tidy
 
 
@@ -64,7 +68,8 @@ build: generate .build
 
 .PHONY: .build
 .build:
-		go mod download && CGO_ENABLED=0 GOOS=linux go build -o ./.bin/ocp-offer-api ./cmd/ocp-offer-api/main.go
+		go mod download && CGO_ENABLED=0 GOOS=linux go build -o ./bin/ocp-offer-api ./cmd/grpc-server/main.go
+		go mod download && CGO_ENABLED=0 GOOS=linux go build -o ./bin/kafka-consumer ./cmd/kafka-consumer/main.go
 
 
 .PHONY: install

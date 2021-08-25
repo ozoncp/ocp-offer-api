@@ -29,10 +29,19 @@ WORKDIR /home/developer/go/src/github.com/ozoncp/ocp-offer-api
 
 RUN make deps && make build
 
+#
 FROM alpine:latest
+
 RUN apk --no-cache add ca-certificates
+
 WORKDIR /root/
+
 COPY --from=builder /home/developer/go/src/github.com/ozoncp/ocp-offer-api/bin/ocp-offer-api .
+
 RUN chown root:root ocp-offer-api
-EXPOSE 9090
+
+EXPOSE 50051
+EXPOSE 8080
+EXPOSE 9100
+
 CMD ["./ocp-offer-api"]

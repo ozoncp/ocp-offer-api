@@ -20,6 +20,8 @@ const _ = grpc.SupportPackageIsVersion7
 type OcpOfferApiServiceClient interface {
 	// CreateOfferV1 - Create an offer
 	CreateOfferV1(ctx context.Context, in *CreateOfferV1Request, opts ...grpc.CallOption) (*CreateOfferV1Response, error)
+	// MultiCreateOfferV1 - Multiple offer creation
+	MultiCreateOfferV1(ctx context.Context, in *MultiCreateOfferV1Request, opts ...grpc.CallOption) (*MultiCreateOfferV1Response, error)
 	// DescribeOfferV1 - Get information about the offer
 	DescribeOfferV1(ctx context.Context, in *DescribeOfferV1Request, opts ...grpc.CallOption) (*DescribeOfferV1Response, error)
 	// ListOfferV1 - Gets a list of offers
@@ -41,6 +43,15 @@ func NewOcpOfferApiServiceClient(cc grpc.ClientConnInterface) OcpOfferApiService
 func (c *ocpOfferApiServiceClient) CreateOfferV1(ctx context.Context, in *CreateOfferV1Request, opts ...grpc.CallOption) (*CreateOfferV1Response, error) {
 	out := new(CreateOfferV1Response)
 	err := c.cc.Invoke(ctx, "/ocp.offer.api.OcpOfferApiService/CreateOfferV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ocpOfferApiServiceClient) MultiCreateOfferV1(ctx context.Context, in *MultiCreateOfferV1Request, opts ...grpc.CallOption) (*MultiCreateOfferV1Response, error) {
+	out := new(MultiCreateOfferV1Response)
+	err := c.cc.Invoke(ctx, "/ocp.offer.api.OcpOfferApiService/MultiCreateOfferV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -89,6 +100,8 @@ func (c *ocpOfferApiServiceClient) RemoveOfferV1(ctx context.Context, in *Remove
 type OcpOfferApiServiceServer interface {
 	// CreateOfferV1 - Create an offer
 	CreateOfferV1(context.Context, *CreateOfferV1Request) (*CreateOfferV1Response, error)
+	// MultiCreateOfferV1 - Multiple offer creation
+	MultiCreateOfferV1(context.Context, *MultiCreateOfferV1Request) (*MultiCreateOfferV1Response, error)
 	// DescribeOfferV1 - Get information about the offer
 	DescribeOfferV1(context.Context, *DescribeOfferV1Request) (*DescribeOfferV1Response, error)
 	// ListOfferV1 - Gets a list of offers
@@ -106,6 +119,9 @@ type UnimplementedOcpOfferApiServiceServer struct {
 
 func (UnimplementedOcpOfferApiServiceServer) CreateOfferV1(context.Context, *CreateOfferV1Request) (*CreateOfferV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateOfferV1 not implemented")
+}
+func (UnimplementedOcpOfferApiServiceServer) MultiCreateOfferV1(context.Context, *MultiCreateOfferV1Request) (*MultiCreateOfferV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MultiCreateOfferV1 not implemented")
 }
 func (UnimplementedOcpOfferApiServiceServer) DescribeOfferV1(context.Context, *DescribeOfferV1Request) (*DescribeOfferV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DescribeOfferV1 not implemented")
@@ -146,6 +162,24 @@ func _OcpOfferApiService_CreateOfferV1_Handler(srv interface{}, ctx context.Cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OcpOfferApiServiceServer).CreateOfferV1(ctx, req.(*CreateOfferV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OcpOfferApiService_MultiCreateOfferV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MultiCreateOfferV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OcpOfferApiServiceServer).MultiCreateOfferV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocp.offer.api.OcpOfferApiService/MultiCreateOfferV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OcpOfferApiServiceServer).MultiCreateOfferV1(ctx, req.(*MultiCreateOfferV1Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -232,6 +266,10 @@ var OcpOfferApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateOfferV1",
 			Handler:    _OcpOfferApiService_CreateOfferV1_Handler,
+		},
+		{
+			MethodName: "MultiCreateOfferV1",
+			Handler:    _OcpOfferApiService_MultiCreateOfferV1_Handler,
 		},
 		{
 			MethodName: "DescribeOfferV1",

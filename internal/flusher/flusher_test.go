@@ -1,6 +1,7 @@
 package flusher_test
 
 import (
+	"context"
 	"errors"
 	"reflect"
 
@@ -20,11 +21,13 @@ var _ = Describe("Flusher", func() {
 		m      *mocks.MockIRepository
 		f      flusher.Flusher
 		source []models.Offer
+		ctx    context.Context
 	)
 
 	BeforeEach(func() {
 		ctrl = gomock.NewController(GinkgoT())
 		m = mocks.NewMockIRepository(ctrl)
+		ctx = context.Background()
 		source = []models.Offer{
 			{Id: 10, UserId: 20, Grade: 30, TeamId: 40},
 			{Id: 11, UserId: 21, Grade: 31, TeamId: 41},
@@ -44,41 +47,41 @@ var _ = Describe("Flusher", func() {
 	})
 
 	Context("save offers to repo with flusher", func() {
-		Context("when AddOffers returns error", func() {
+		Context("when MultiCreateOffer returns error", func() {
 			It("returns error", func() {
 				f = flusher.NewFlusher(3, m)
 
 				m.EXPECT().
-					AddOffers(gomock.Any()).
-					Return(errors.New("error")).
-					Times(1)
+					MultiCreateOffer(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(uint64(0), errors.New("error"))
 
-				res, err := f.Flush(source)
+				res, err := f.Flush(ctx, source)
 
 				Expect(err).Should(BeEquivalentTo(errors.New("error")))
 				Expect(res).Should(Equal(source))
 			})
 		})
 
-		Context("when AddOffers returns an error in loop of Flush function", func() {
+		Context("when MultiCreateOffer returns an error in loop of Flush function", func() {
 			It("returns error", func() {
 				chunkSize := 3
 				f := flusher.NewFlusher(chunkSize, m)
 				chunks, _ := utils.SplitOffersToBatches(source, uint(chunkSize))
 
 				m.EXPECT().
-					AddOffers(gomock.Any()).
+					MultiCreateOffer(gomock.Any(), gomock.Any()).
 					Times(2).
 					DoAndReturn(
-						func(chunk []models.Offer) error {
+						func(ctx context.Context, chunk []models.Offer) (uint64, error) {
 							if reflect.DeepEqual(chunk, chunks[1]) {
-								return errors.New("error")
+								return 0, errors.New("error")
 							}
-							return nil
+							return 0, nil
 						},
 					)
 
-				res, err := f.Flush(source)
+				res, err := f.Flush(ctx, source)
 
 				// проверяем что вернутась нужная ошибка
 				Expect(err).Should(BeEquivalentTo(errors.New("error")))
@@ -94,10 +97,10 @@ var _ = Describe("Flusher", func() {
 					f = flusher.NewFlusher(-1, m)
 
 					m.EXPECT().
-						AddOffers(gomock.Any()).
+						MultiCreateOffer(gomock.Any(), gomock.Any()).
 						Times(0)
 
-					res, err := f.Flush(source)
+					res, err := f.Flush(ctx, source)
 
 					Expect(err).Should(HaveOccurred())
 					Expect(res).Should(Equal(source))
@@ -110,10 +113,10 @@ var _ = Describe("Flusher", func() {
 					f := flusher.NewFlusher(1, m)
 
 					m.EXPECT().
-						AddOffers(gomock.Any()).
+						MultiCreateOffer(gomock.Any(), gomock.Any()).
 						Times(0)
 
-					res, err := f.Flush(data)
+					res, err := f.Flush(ctx, data)
 
 					Expect(err).Should(HaveOccurred())
 					Expect(res).Should(Equal(data))
@@ -129,10 +132,10 @@ var _ = Describe("Flusher", func() {
 					f := flusher.NewFlusher(1, m)
 
 					m.EXPECT().
-						AddOffers(gomock.Any()).
+						MultiCreateOffer(gomock.Any(), gomock.Any()).
 						Times(1)
 
-					res, err := f.Flush(source)
+					res, err := f.Flush(ctx, source)
 
 					Expect(err).ShouldNot(HaveOccurred())
 					Expect(res).Should(BeNil())
@@ -144,10 +147,10 @@ var _ = Describe("Flusher", func() {
 					f := flusher.NewFlusher(2, m)
 
 					m.EXPECT().
-						AddOffers(gomock.Any()).
+						MultiCreateOffer(gomock.Any(), gomock.Any()).
 						Times(2)
 
-					res, err := f.Flush(source)
+					res, err := f.Flush(ctx, source)
 
 					Expect(err).ShouldNot(HaveOccurred())
 					Expect(res).Should(BeNil())
@@ -159,10 +162,10 @@ var _ = Describe("Flusher", func() {
 					f := flusher.NewFlusher(5, m)
 
 					m.EXPECT().
-						AddOffers(gomock.Any()).
+						MultiCreateOffer(gomock.Any(), gomock.Any()).
 						Times(5)
 
-					res, err := f.Flush(source)
+					res, err := f.Flush(ctx, source)
 
 					Expect(err).ShouldNot(HaveOccurred())
 					Expect(res).Should(BeNil())

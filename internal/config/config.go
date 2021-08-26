@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"reflect"
 	"strconv"
@@ -22,7 +23,7 @@ var (
 	Kafka    *kafka
 )
 
-// config - microservice config
+// config - microservice config.
 type config struct {
 	Project  project  `yaml:"project"`
 	GRPC     gRPC     `yaml:"grpc"`
@@ -32,7 +33,7 @@ type config struct {
 	Kafka    kafka    `yaml:"kafka"`
 }
 
-// gRPC config
+// gRPC config.
 type project struct {
 	Name        string `yaml:"name"`
 	Version     string `yaml:"version"`
@@ -40,7 +41,7 @@ type project struct {
 	Debug       bool   `yaml:"debug"`
 }
 
-// gRPC config
+// gRPC config.
 type gRPC struct {
 	Host              string `yaml:"host" env:"GRPC_HOST"`
 	Port              int    `yaml:"port" env:"GRPC_PORT"`
@@ -49,7 +50,7 @@ type gRPC struct {
 	MaxConnectionAge  int64  `yaml:"maxConnectionAge" env:"GRPC_CONN_AGE"`
 }
 
-// gateway config
+// gateway config.
 type gateway struct {
 	Host string `yaml:"host" env:"GATEWAY_HOST"`
 	Port int    `yaml:"port" env:"GATEWAY_PORT"`
@@ -61,7 +62,7 @@ type metrics struct {
 	Path string `yaml:"path" env:"METRICS_PATH"`
 }
 
-// Postgres config
+// Postgres config.
 type database struct {
 	Host     string `yaml:"host" env:"DATABASE_HOST"`
 	Port     int    `yaml:"port" env:"DATABASE_PORT"`
@@ -72,7 +73,7 @@ type database struct {
 	Driver   string `yaml:"driver" env:"DATABASE_DRIVER"`
 }
 
-// Postgres config
+// Postgres config.
 type kafka struct {
 	Brokers  []string `yaml:"brokers"`
 	Topic    string   `yaml:"topic"`
@@ -87,15 +88,15 @@ func init() {
 	doOnce.Do(func() {
 		if err := UpdateConfig(); err != nil {
 			log.Fatal().Err(err).Msg("Configuration initialization failed")
+
 			return
 		}
 
 		log.Info().Msg("Config initialization was successful")
-
 	})
 }
 
-// UpdateConfig - Updates the config by rereading
+// UpdateConfig - Updates the config by rereading.
 func UpdateConfig() error {
 	file, err := os.Open(fileConfig)
 	if err != nil {
@@ -104,7 +105,7 @@ func UpdateConfig() error {
 	defer file.Close()
 
 	decoder := yaml.NewDecoder(file)
-	if err = decoder.Decode(&cfg); err != nil {
+	if err := decoder.Decode(&cfg); err != nil {
 		return err
 	}
 
@@ -122,7 +123,7 @@ func UpdateConfig() error {
 	return nil
 }
 
-// readEnvAndSet - Sets config from environment values
+// readEnvAndSet - Sets config from environment values.
 func readEnvAndSet(v reflect.Value) {
 	if v.Kind() == reflect.Ptr && !v.IsNil() {
 		v = v.Elem()
@@ -133,12 +134,10 @@ func readEnvAndSet(v reflect.Value) {
 		field := t.Field(i)
 		if field.Type.Kind() == reflect.Struct {
 			readEnvAndSet(v.Field(i))
-		} else {
-			if tag := field.Tag.Get("env"); tag != "" {
-				if value := os.Getenv(tag); value != "" {
-					if err := setValue(v.Field(i), value); err != nil {
-						log.Error().Err(err).Msgf("Failed to set environment value for \"%s\"", field.Name)
-					}
+		} else if tag := field.Tag.Get("env"); tag != "" {
+			if value := os.Getenv(tag); value != "" {
+				if err := setValue(v.Field(i), value); err != nil {
+					log.Error().Err(err).Msgf("Failed to set environment value for \"%s\"", field.Name)
 				}
 			}
 		}
@@ -147,7 +146,6 @@ func readEnvAndSet(v reflect.Value) {
 
 func setValue(field reflect.Value, value string) error {
 	valueType := field.Type()
-
 	switch valueType.Kind() {
 	// set string value
 	case reflect.String:
@@ -170,7 +168,6 @@ func setValue(field reflect.Value, value string) error {
 				return err
 			}
 			field.SetInt(int64(d))
-
 		} else {
 			// parse regular integer
 			number, err := strconv.ParseInt(value, 0, valueType.Bits())
@@ -195,6 +192,15 @@ func setValue(field reflect.Value, value string) error {
 			return err
 		}
 		field.SetFloat(number)
+
+	// unsupported types
+	case reflect.Map, reflect.Ptr,
+		reflect.Complex64, reflect.Interface,
+		reflect.Invalid, reflect.Slice, reflect.Func,
+		reflect.Array, reflect.Chan, reflect.Complex128,
+		reflect.Struct, reflect.Uintptr, reflect.UnsafePointer:
+	default:
+		return fmt.Errorf("unsupported type: %v", valueType.Kind())
 	}
 
 	return nil

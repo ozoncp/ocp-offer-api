@@ -1,6 +1,6 @@
 project:
   name: Ozon Code Platform Offer API
-  version: v0.8.0
+  version: v0.8.1
   debug: true
   environment: development
 

@@ -801,6 +801,9 @@ type PaginationInput struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// Deprecated: Cursor-based pagination uses cursor and take to return a
+	// limited set of results before or after a given cursor
+	//
 	// Deprecated: Do not use.
 	Cursor uint64 `protobuf:"varint,1,opt,name=cursor,proto3" json:"cursor,omitempty"`
 	// Number of items per page

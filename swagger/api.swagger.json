@@ -32,6 +32,7 @@
         "parameters": [
           {
             "name": "pagination.cursor",
+            "description": "Deprecated: Cursor-based pagination uses cursor and take to return a\nlimited set of results before or after a given cursor.",
             "in": "query",
             "required": false,
             "type": "string",
@@ -353,7 +354,8 @@
       "properties": {
         "cursor": {
           "type": "string",
-          "format": "uint64"
+          "format": "uint64",
+          "title": "Deprecated: Cursor-based pagination uses cursor and take to return a\nlimited set of results before or after a given cursor"
         },
         "take": {
           "type": "integer",

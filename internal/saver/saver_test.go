@@ -24,14 +24,12 @@ var _ = Describe("Saver", func() {
 		ctrl *gomock.Controller
 		m    *mocks.MockIRepository
 		f    flusher.Flusher
-		s    saver.Saver
 	)
 
 	BeforeEach(func() {
 		ctrl = gomock.NewController(GinkgoT())
 		m = mocks.NewMockIRepository(ctrl)
 		f = flusher.NewFlusher(int(chunkSize), m)
-		s, _ = saver.NewSaver(capacity, f, duration)
 	})
 
 	AfterEach(func() {
@@ -83,13 +81,15 @@ var _ = Describe("Saver", func() {
 	Context("invalid case", func() {
 		When("save returns an error", func() {
 			It("when save channel is closed ", func() {
+				s, _ := saver.NewSaver(capacity, f, duration)
+
 				m.EXPECT().
 					MultiCreateOffer(gomock.Any(), gomock.Any()).
 					AnyTimes().
 					Return(uint64(1), nil)
 
 				s.Close()
-				err := s.Save(models.Offer{Id: 1})
+				err := s.Save(models.Offer{ID: 1})
 
 				Expect(err).Should(BeEquivalentTo(saver.ErrorChanelClosed))
 			})
@@ -98,6 +98,8 @@ var _ = Describe("Saver", func() {
 
 	Context("normal case", func() {
 		It("when offers are less than capacity", func() {
+			s, _ := saver.NewSaver(capacity, f, duration)
+
 			m.EXPECT().
 				MultiCreateOffer(gomock.Any(), gomock.Any()).
 				AnyTimes().
@@ -107,7 +109,7 @@ var _ = Describe("Saver", func() {
 
 			for i := 0; i < countOffers; i++ {
 				err := s.Save(models.Offer{
-					Id: uint64(i) + 1,
+					ID: uint64(i) + 1,
 				})
 				Expect(err).Should(BeNil())
 			}

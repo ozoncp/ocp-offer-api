@@ -75,17 +75,18 @@ func (dProducer *producer) handleMessage(ctx context.Context) {
 		case <-ctx.Done():
 			close(dProducer.msgChan)
 			dProducer.dataProducer.Close()
+
 			return
 		}
 	}
 }
 
 func (dProducer *producer) Send(msg Message) error {
-
 	dataBytes, err := json.Marshal(msg)
 
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to marshal message to json")
+
 		return err
 	}
 

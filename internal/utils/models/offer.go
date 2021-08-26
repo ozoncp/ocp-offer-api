@@ -28,15 +28,15 @@ func SplitOffersToBatches(source []models.Offer, batchSize uint) ([][]models.Off
 	slice := make([]models.Offer, len(source))
 	copy(slice, source)
 
-	var result [][]models.Offer
-
 	length := len(slice)
 
 	// Количество шагов (батчей), округляем в большую сторону
-	step := int(len(slice)) / int(batchSize)
-	if len(slice)%int(batchSize) != 0 {
-		step += 1
+	step := length / int(batchSize)
+	if uint(length)%batchSize != 0 {
+		step++
 	}
+
+	result := make([][]models.Offer, 0)
 
 	// Разбиваем слайс на части и добавляем в результат
 	for i := 0; i < length; i += step {
@@ -54,6 +54,7 @@ func SplitOffersToBatches(source []models.Offer, batchSize uint) ([][]models.Off
 // где ключ идентификатор структуры, а значение сама структура
 //
 // "source" - исходный слайс;
+
 func ConvertOffersSliceToMap(source []models.Offer) (map[uint64]models.Offer, error) {
 	if source == nil {
 		return nil, errors.New("source cannot be `nil`")
@@ -62,7 +63,7 @@ func ConvertOffersSliceToMap(source []models.Offer) (map[uint64]models.Offer, er
 	result := make(map[uint64]models.Offer, len(source))
 
 	for _, offer := range source {
-		result[offer.Id] = offer
+		result[offer.ID] = offer
 	}
 
 	return result, nil

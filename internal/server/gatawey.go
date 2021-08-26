@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
@@ -18,7 +19,7 @@ import (
 
 var (
 	httpTotalRequests = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "http_microservice_total_requests",
+		Name: "http_microservice_requests_total",
 		Help: "The total number of incoming HTTP requests",
 	})
 )
@@ -61,10 +62,9 @@ func tracingWrapper(h http.Handler) http.Handler {
 		parentSpanContext, err := opentracing.GlobalTracer().Extract(
 			opentracing.HTTPHeaders,
 			opentracing.HTTPHeadersCarrier(r.Header))
-		if err == nil || err == opentracing.ErrSpanContextNotFound {
+		if err == nil || errors.Is(err, opentracing.ErrSpanContextNotFound) {
 			serverSpan := opentracing.GlobalTracer().StartSpan(
 				"ServeHTTP",
-				// this is magical, it attaches the new span to the parent parentSpanContext, and creates an unparented one if empty.
 				ext.RPCServerOption(parentSpanContext),
 				grpcGatewayTag,
 			)

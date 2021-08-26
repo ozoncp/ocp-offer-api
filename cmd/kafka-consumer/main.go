@@ -11,13 +11,15 @@ import (
 )
 
 func subscribe(topic string, consumer sarama.Consumer) error {
-	partitionList, err := consumer.Partitions(topic) //get all partitions on the given topic
+	// get all partitions on the given topic
+	partitionList, err := consumer.Partitions(topic)
 
 	if err != nil {
 		return err
 	}
 
-	initialOffset := sarama.OffsetOldest //get offset for the oldest message on the topic
+	// get offset for the oldest message on the topic.
+	initialOffset := sarama.OffsetOldest
 
 	for _, partition := range partitionList {
 		pc, err := consumer.ConsumePartition(topic, partition, initialOffset)
@@ -46,7 +48,6 @@ func messageReceived(message *sarama.ConsumerMessage) {
 }
 
 func main() {
-
 	consumer, err := sarama.NewConsumer(cfg.Kafka.Brokers, nil)
 	if err != nil {
 		log.Fatal().Msgf("NewConsumer error: %v", err)

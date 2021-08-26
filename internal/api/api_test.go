@@ -160,10 +160,10 @@ var _ = Describe("OcpOfferApiService", func() {
 					DescribeOffer(gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(&models.Offer{
-						Id:     1,
-						UserId: 2,
+						ID:     1,
+						UserID: 2,
 						Grade:  3,
-						TeamId: 4,
+						TeamID: 4,
 					}, nil)
 
 				req := &pb.DescribeOfferV1Request{OfferId: 1}

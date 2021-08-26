@@ -29,16 +29,16 @@ var _ = Describe("Flusher", func() {
 		m = mocks.NewMockIRepository(ctrl)
 		ctx = context.Background()
 		source = []models.Offer{
-			{Id: 10, UserId: 20, Grade: 30, TeamId: 40},
-			{Id: 11, UserId: 21, Grade: 31, TeamId: 41},
-			{Id: 12, UserId: 22, Grade: 32, TeamId: 42},
-			{Id: 13, UserId: 23, Grade: 33, TeamId: 43},
-			{Id: 14, UserId: 24, Grade: 34, TeamId: 44},
-			{Id: 15, UserId: 25, Grade: 35, TeamId: 45},
-			{Id: 16, UserId: 26, Grade: 36, TeamId: 46},
-			{Id: 17, UserId: 27, Grade: 37, TeamId: 47},
-			{Id: 18, UserId: 28, Grade: 38, TeamId: 48},
-			{Id: 19, UserId: 29, Grade: 39, TeamId: 49},
+			{ID: 10, UserID: 20, Grade: 30, TeamID: 40},
+			{ID: 11, UserID: 21, Grade: 31, TeamID: 41},
+			{ID: 12, UserID: 22, Grade: 32, TeamID: 42},
+			{ID: 13, UserID: 23, Grade: 33, TeamID: 43},
+			{ID: 14, UserID: 24, Grade: 34, TeamID: 44},
+			{ID: 15, UserID: 25, Grade: 35, TeamID: 45},
+			{ID: 16, UserID: 26, Grade: 36, TeamID: 46},
+			{ID: 17, UserID: 27, Grade: 37, TeamID: 47},
+			{ID: 18, UserID: 28, Grade: 38, TeamID: 48},
+			{ID: 19, UserID: 29, Grade: 39, TeamID: 49},
 		}
 	})
 
@@ -66,7 +66,7 @@ var _ = Describe("Flusher", func() {
 		Context("when MultiCreateOffer returns an error in loop of Flush function", func() {
 			It("returns error", func() {
 				chunkSize := 3
-				f := flusher.NewFlusher(chunkSize, m)
+				f = flusher.NewFlusher(chunkSize, m)
 				chunks, _ := utils.SplitOffersToBatches(source, uint(chunkSize))
 
 				m.EXPECT().
@@ -77,6 +77,7 @@ var _ = Describe("Flusher", func() {
 							if reflect.DeepEqual(chunk, chunks[1]) {
 								return 0, errors.New("error")
 							}
+
 							return 0, nil
 						},
 					)

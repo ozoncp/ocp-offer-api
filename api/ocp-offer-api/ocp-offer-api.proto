@@ -146,6 +146,8 @@ message PaginationInfo {
 // PaginationInput Offset pagination uses skip and take to skip a certain number
 // of results and select a limited range
 message PaginationInput {
+  // Deprecated: Cursor-based pagination uses cursor and take to return a
+  // limited set of results before or after a given cursor
   uint64 cursor = 1 [deprecated = true];
   // Number of items per page
   uint32 take   = 2 [(validate.rules).uint32 = { gt: 0, lte: 10000 }];

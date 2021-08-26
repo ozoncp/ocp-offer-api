@@ -42,7 +42,6 @@ func NewGrpcServer(db *sqlx.DB, batchSize uint) *GrpcServer {
 
 func (s *GrpcServer) Start() error {
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
 	im := interceptors.NewInterceptorManager()
 
@@ -55,7 +54,7 @@ func (s *GrpcServer) Start() error {
 	go func() {
 		log.Info().Msgf("Gateway server is running on %s", gatewayAddr)
 		if err := gatewayServer.ListenAndServe(); err != nil {
-			log.Fatal().Err(err).Msg("Failed running gateway server")
+			log.Error().Err(err).Msg("Failed running gateway server")
 			cancel()
 		}
 	}()
@@ -65,14 +64,14 @@ func (s *GrpcServer) Start() error {
 	go func() {
 		log.Info().Msgf("Metrics server is running on %s", metricsAddr)
 		if err := metricsServer.ListenAndServe(); err != nil {
-			log.Fatal().Err(err).Msg("Failed running metrics server")
+			log.Error().Err(err).Msg("Failed running metrics server")
 			cancel()
 		}
 	}()
 
 	l, err := net.Listen("tcp", grpcAddr)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to listen")
+		return fmt.Errorf("failed to listen: %w", err)
 	}
 	defer l.Close()
 
@@ -91,13 +90,13 @@ func (s *GrpcServer) Start() error {
 		)),
 	)
 
-	repo := repo.NewRepo(s.db, s.batchSize)
+	r := repo.NewRepo(s.db, s.batchSize)
 	dataProducer, err := producer.New(ctx, cfg.Kafka.Brokers, cfg.Kafka.Topic, cfg.Kafka.Capacity)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to create a producer")
+		return fmt.Errorf("failed to create a producer: %w", err)
 	}
 
-	pb.RegisterOcpOfferApiServiceServer(grpcServer, api.NewOfferAPI(repo, dataProducer))
+	pb.RegisterOcpOfferApiServiceServer(grpcServer, api.NewOfferAPI(r, dataProducer))
 	grpc_prometheus.Register(grpcServer)
 
 	go func() {

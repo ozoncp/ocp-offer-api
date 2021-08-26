@@ -8,6 +8,7 @@ import (
 )
 
 func TestOfferString(t *testing.T) {
+	t.Parallel()
 	// Проверка нескольких тестовых кейсов
 	testCases := []struct {
 		name    string       // Название теста
@@ -17,7 +18,7 @@ func TestOfferString(t *testing.T) {
 	}{
 		{
 			name:   "Valid offer to string",
-			offer:  models.Offer{Id: 0, UserId: 1, Grade: 2, TeamId: 3},
+			offer:  models.Offer{ID: 0, UserID: 1, Grade: 2, TeamID: 3},
 			result: "Id: 0, UserId: 1, Grade: 2, TeamId: 3",
 		},
 		{
@@ -28,7 +29,9 @@ func TestOfferString(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			result := tc.offer.String()
 			assert.Equal(t, tc.result, result)
 		})

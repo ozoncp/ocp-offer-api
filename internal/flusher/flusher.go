@@ -8,12 +8,12 @@ import (
 	utils "github.com/ozoncp/ocp-offer-api/internal/utils/models"
 )
 
-// Flusher - интерфейс для сброса задач в хранилище
+// Flusher - интерфейс для сброса задач в хранилище.
 type Flusher interface {
 	Flush(ctx context.Context, offers []models.Offer) ([]models.Offer, error)
 }
 
-// NewFlusher возвращает Flusher с поддержкой батчевого сохранения
+// NewFlusher возвращает Flusher с поддержкой батчевого сохранения.
 func NewFlusher(chunkSize int, offerRepo repo.IRepository) Flusher {
 	return &flusher{
 		chunkSize: chunkSize,
@@ -27,7 +27,7 @@ type flusher struct {
 }
 
 // Flush добавляет офферы пачками в хранилеще
-// при ошибке возвращает не добавленные слайсы и ошибку
+// при ошибке возвращает не добавленные слайсы и ошибку.
 func (f *flusher) Flush(ctx context.Context, offers []models.Offer) ([]models.Offer, error) {
 	chunks, err := utils.SplitOffersToBatches(offers, uint(f.chunkSize))
 	if err != nil {

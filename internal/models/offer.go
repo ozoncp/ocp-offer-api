@@ -4,17 +4,17 @@ import (
 	"fmt"
 )
 
-// Offer - информаци о выданном офере обучающемуся
+// Offer - информаци о выданном офере обучающемуся.
 type Offer struct {
-	Id     uint64 `db:"id"`
-	UserId uint64 `db:"user_id"`
-	TeamId uint64 `db:"team_id"`
+	ID     uint64 `db:"id"`
+	UserID uint64 `db:"user_id"`
+	TeamID uint64 `db:"team_id"`
 	Grade  uint64 `db:"grade"`
 }
 
 func (o *Offer) String() string {
 	return fmt.Sprintf(
 		"Id: %d, UserId: %d, Grade: %d, TeamId: %d",
-		o.Id, o.UserId, o.Grade, o.TeamId,
+		o.ID, o.UserID, o.Grade, o.TeamID,
 	)
 }

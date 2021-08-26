@@ -25,23 +25,24 @@ type saver struct {
 }
 
 // NewSaver возвращает Saver с поддержкой переодического сохранения
-func NewSaver(capacity uint, flusher flusher.Flusher, duration time.Duration) (Saver, error) {
+
+func NewSaver(capacity uint, f flusher.Flusher, dur time.Duration) (Saver, error) {
 	if capacity <= 0 {
 		return nil, ErrorCapacionLessOrEqualZero
 	}
 
-	if duration <= 0 {
+	if dur <= 0 {
 		return nil, ErrorDurationLessOrEqualZero
 	}
 
-	if flusher == nil {
+	if f == nil {
 		return nil, ErrorFlusherIsNil
 	}
 
 	s := &saver{
 		capacity:   capacity,
-		flusher:    flusher,
-		tiker:      time.NewTicker(duration),
+		flusher:    f,
+		tiker:      time.NewTicker(dur),
 		offers:     make([]models.Offer, capacity),
 		offersChan: make(chan models.Offer),
 		end:        make(chan struct{}),

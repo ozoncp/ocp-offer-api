@@ -17,9 +17,9 @@ type IRepository interface {
 	MultiCreateOffer(ctx context.Context, offers []models.Offer) (uint64, error)
 	CreateOffer(ctx context.Context, offer models.Offer) (uint64, error)
 	UpdateOffer(ctx context.Context, offer models.Offer) error
-	DescribeOffer(ctx context.Context, offerId uint64) (*models.Offer, error)
+	DescribeOffer(ctx context.Context, offerID uint64) (*models.Offer, error)
 	ListOffer(ctx context.Context, pagination models.PaginationInput) ([]models.Offer, *models.PaginationInfo, error)
-	RemoveOffer(ctx context.Context, offerId uint64) error
+	RemoveOffer(ctx context.Context, offerID uint64) error
 }
 
 type Repository struct {
@@ -28,7 +28,6 @@ type Repository struct {
 }
 
 func NewRepo(db *sqlx.DB, batchSize uint) IRepository {
-
 	return &Repository{db: db, batchSize: batchSize}
 }
 
@@ -37,8 +36,7 @@ func (r *Repository) MultiCreateOffer(ctx context.Context, offers []models.Offer
 	span := tracer.StartSpan("MultiCreateOffer global")
 	defer span.Finish()
 
-	var countCreated uint64 = 0
-
+	var countCreated uint64
 	batches, err := utils.SplitOffersToBatches(offers, r.batchSize)
 	if err != nil {
 		return countCreated, err
@@ -58,7 +56,7 @@ func (r *Repository) MultiCreateOffer(ctx context.Context, offers []models.Offer
 			PlaceholderFormat(sq.Dollar)
 
 		for _, offer := range batch {
-			query = query.Values(offer.UserId, offer.TeamId, offer.Grade)
+			query = query.Values(offer.UserID, offer.TeamID, offer.Grade)
 		}
 
 		result, err := query.ExecContext(ctx)
@@ -73,7 +71,7 @@ func (r *Repository) MultiCreateOffer(ctx context.Context, offers []models.Offer
 			return countCreated, err
 		}
 
-		countCreated = countCreated + uint64(rowsAffected)
+		countCreated += uint64(rowsAffected)
 	}
 
 	return countCreated, nil
@@ -83,26 +81,26 @@ func (r *Repository) CreateOffer(ctx context.Context, offer models.Offer) (uint6
 	query := sq.
 		Insert("offer").
 		Columns("user_id", "team_id", "grade").
-		Values(offer.UserId, offer.TeamId, offer.Grade).
+		Values(offer.UserID, offer.TeamID, offer.Grade).
 		Suffix("RETURNING id").
 		RunWith(r.db).
 		PlaceholderFormat(sq.Dollar)
 
-	var offerId uint64 = 0
-	if err := query.QueryRowContext(ctx).Scan(&offerId); err != nil {
+	var offerID uint64
+	if err := query.QueryRowContext(ctx).Scan(&offerID); err != nil {
 		return 0, err
 	}
 
-	return offerId, nil
+	return offerID, nil
 }
 
 func (r *Repository) UpdateOffer(ctx context.Context, offer models.Offer) error {
 	_, err := sq.
 		Update("offer").
-		Set("user_id", offer.UserId).
-		Set("team_id", offer.TeamId).
+		Set("user_id", offer.UserID).
+		Set("team_id", offer.TeamID).
 		Set("grade", offer.Grade).
-		Where(sq.Eq{"id": offer.Id}).
+		Where(sq.Eq{"id": offer.ID}).
 		RunWith(r.db).
 		PlaceholderFormat(sq.Dollar).
 		ExecContext(ctx)
@@ -110,18 +108,18 @@ func (r *Repository) UpdateOffer(ctx context.Context, offer models.Offer) error 
 	return err
 }
 
-func (r *Repository) DescribeOffer(ctx context.Context, offerId uint64) (*models.Offer, error) {
+func (r *Repository) DescribeOffer(ctx context.Context, offerID uint64) (*models.Offer, error) {
 	query := sq.
 		Select("id", "user_id", "team_id", "grade").
 		From("offer").
-		Where(sq.Eq{"id": offerId}).
+		Where(sq.Eq{"id": offerID}).
 		RunWith(r.db).
 		PlaceholderFormat(sq.Dollar)
 
 	var offer models.Offer
 
 	err := query.QueryRowContext(ctx).
-		Scan(&offer.Id, &offer.UserId, &offer.TeamId, &offer.Grade)
+		Scan(&offer.ID, &offer.UserID, &offer.TeamID, &offer.Grade)
 
 	if err != nil {
 		return nil, err
@@ -140,7 +138,6 @@ func (r *Repository) ListOffer(ctx context.Context, pagination models.Pagination
 		RunWith(r.db).
 		PlaceholderFormat(sq.Dollar)
 
-	var offers []models.Offer
 	rows, err := query.QueryContext(ctx)
 
 	if err != nil {
@@ -148,12 +145,13 @@ func (r *Repository) ListOffer(ctx context.Context, pagination models.Pagination
 	}
 	defer rows.Close()
 
+	offers := make([]models.Offer, 0)
 	for rows.Next() {
 		var offer models.Offer
-		if err = rows.Scan(
-			&offer.Id,
-			&offer.UserId,
-			&offer.TeamId,
+		if err := rows.Scan(
+			&offer.ID,
+			&offer.UserID,
+			&offer.TeamID,
 			&offer.Grade,
 		); err != nil {
 			return nil, nil, err
@@ -173,10 +171,10 @@ func (r *Repository) ListOffer(ctx context.Context, pagination models.Pagination
 	return offers, pagInfo, nil
 }
 
-func (r *Repository) RemoveOffer(ctx context.Context, offerId uint64) error {
+func (r *Repository) RemoveOffer(ctx context.Context, offerID uint64) error {
 	_, err := sq.
 		Delete("offer").
-		Where(sq.Eq{"id": offerId}).
+		Where(sq.Eq{"id": offerID}).
 		RunWith(r.db).
 		PlaceholderFormat(sq.Dollar).
 		ExecContext(ctx)

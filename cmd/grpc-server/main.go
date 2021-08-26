@@ -27,7 +27,6 @@ func main() {
 		Msgf("Starting service: %s", cfg.Project.Name)
 
 	db := createDB()
-	defer db.Close()
 
 	tracer.InitTracing("ocp_offer_api")
 
@@ -49,11 +48,13 @@ func createDB() *sqlx.DB {
 	db, err := sqlx.Open(cfg.Database.Driver, dataSourceName)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("failed to create database connection")
+
 		return nil
 	}
 
 	if err = db.Ping(); err != nil {
-		log.Error().Err(err).Msgf("failed ping the database")
+		log.Fatal().Err(err).Msgf("failed ping the database")
+
 		return nil
 	}
 

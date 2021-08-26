@@ -10,18 +10,17 @@ kafka-consumer:
 
 
 lint:
-	golint ./...
+	golangci-lint run ./...
 
 
 .PHONY: test
-test: all
+test: .test .coverage
 
-all:
+.test:
 	go test -v -race -timeout 30s -coverprofile cover.out ./...
 
-coverage:
+.coverage:
 	go tool cover -func cover.out | grep total | awk '{print $3}'
-
 
 .PHONY: generate
 generate: .vendor-proto .generate

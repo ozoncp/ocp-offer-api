@@ -4,6 +4,11 @@ services:
   database:
     image: postgres:latest
     restart: always
+    logging:
+      driver: 'gelf'
+      options:
+        gelf-address: 'udp://localhost:12201'
+        tag: ocp-offer-postgres
     ports:
       - '5432:5432'
     environment:
@@ -15,6 +20,11 @@ services:
 
   zookeeper:
     image: confluentinc/cp-zookeeper
+    logging:
+      driver: 'gelf'
+      options:
+        gelf-address: 'udp://localhost:12201'
+        tag: ocp-offer-zookeeper
     ports:
       - '2181:2181'
     environment:
@@ -25,6 +35,11 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka
+    logging:
+      driver: 'gelf'
+      options:
+        gelf-address: 'udp://localhost:12201'
+        tag: ocp-offer-kafka
     depends_on:
       - zookeeper
     environment:
@@ -37,6 +52,11 @@ services:
 
   prometheus:
     image: prom/prometheus
+    logging:
+      driver: 'gelf'
+      options:
+        gelf-address: 'udp://localhost:12201'
+        tag: ocp-offer-prometheus
     ports:
       - '9090:9090'
     depends_on:
@@ -46,13 +66,83 @@ services:
     volumes:
       - './prometheus.yml:/etc/prometheus/prometheus.yml'
 
-  app:
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    logging:
+      driver: 'gelf'
+      options:
+        gelf-address: 'udp://localhost:12201'
+        tag: ocp-offer-jaeger
+    ports:
+      - '6831:6831/udp'
+      - '16686:16686'
+
+  mongodb:
+    image: mongo:4.1
+    restart: always
+    volumes:
+      - mongodata:/data/db
+
+  elasticsearch:
+    image: elasticsearch:7.14.0
+    restart: always
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=localhost
+      - network.host=0.0.0.0
+      - xpack.security.enabled=false
+      - xpack.watcher.enabled=false
+      - xpack.monitoring.enabled=false
+      - xpack.security.audit.enabled=false
+      - xpack.ml.enabled=false
+      - xpack.graph.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m -XX:+UseG1GC
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    mem_limit: 512M
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+  graylog:
+    image: graylog/graylog:4.1
+    restart: always
+    environment:
+      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
+      # Password: admin
+      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://localhost:9000/
+    links:
+      - mongodb:mongo
+      - elasticsearch
+    depends_on:
+      - mongodb
+      - elasticsearch
+    ports:
+      # HTTP
+      - 9000:9000
+      # Syslog TCP
+      - 1514:1514
+      # Syslog UDP
+      - 1514:1514/udp
+      # GELF TCP
+      - 12201:12201
+      # GELF UDP
+      - 12201:12201/udp
+
+  server:
     build: .
     restart: unless-stopped
     ports:
       - '50051:50051' # gRPC
       - '8080:8080' # Gateway
       - '9100:9100' # Metrics prometheus
+    logging:
+      driver: 'gelf'
+      options:
+        gelf-address: 'udp://localhost:12201'
+        tag: ocp-offer-server
     depends_on:
       - database
       - kafka
@@ -62,11 +152,12 @@ services:
     volumes:
       - './config.yml:/root/config.yml'
 
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    ports:
-      - '6831:6831/udp'
-      - '16686:16686'
-
 volumes:
   pgdata:
+    driver: local
+  esdata:
+    driver: local
+  graylogdata:
+    driver: local
+  mongodata:
+    driver: local

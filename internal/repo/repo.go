@@ -135,6 +135,7 @@ func (r *Repository) ListOffer(ctx context.Context, pagination models.Pagination
 		Limit(uint64(pagination.Take)).
 		Offset(pagination.Skip).
 		OrderBy("id ASC").
+		Where(sq.Eq{"is_deleted": false}).
 		RunWith(r.db).
 		PlaceholderFormat(sq.Dollar)
 
@@ -160,7 +161,13 @@ func (r *Repository) ListOffer(ctx context.Context, pagination models.Pagination
 	}
 
 	var totalItems uint64
-	if err := r.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM offer").Scan(&totalItems); err != nil {
+	if err := sq.
+		Select("COUNT(*)").
+		From("offer").
+		Where(sq.Eq{"is_deleted": false}).
+		RunWith(r.db).
+		PlaceholderFormat(sq.Dollar).
+		QueryRowContext(ctx).Scan(&totalItems); err != nil {
 		return nil, nil, err
 	}
 
@@ -173,7 +180,8 @@ func (r *Repository) ListOffer(ctx context.Context, pagination models.Pagination
 
 func (r *Repository) RemoveOffer(ctx context.Context, offerID uint64) error {
 	_, err := sq.
-		Delete("offer").
+		Update("offer").
+		Set("is_deleted", true).
 		Where(sq.Eq{"id": offerID}).
 		RunWith(r.db).
 		PlaceholderFormat(sq.Dollar).

@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -69,6 +70,20 @@ func (s *GrpcServer) Start() error {
 		}
 	}()
 
+	isReady := &atomic.Value{}
+	isReady.Store(false)
+
+	statusAdrr := fmt.Sprintf("%s:%v", cfg.Status.Host, cfg.Status.Port)
+	statusServer := createStatusServer(statusAdrr, isReady)
+
+	go func() {
+		log.Info().Msgf("Status server is running on %s", statusAdrr)
+		if err := statusServer.ListenAndServe(); err != nil {
+			log.Error().Err(err).Msg("Failed running status server")
+			cancel()
+		}
+	}()
+
 	l, err := net.Listen("tcp", grpcAddr)
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
@@ -106,6 +121,12 @@ func (s *GrpcServer) Start() error {
 		}
 	}()
 
+	go func() {
+		time.Sleep(2 * time.Second)
+		isReady.Store(true)
+		log.Info().Msg("The service is ready to accept requests")
+	}()
+
 	if cfg.Project.Debug {
 		reflection.Register(grpcServer)
 	}
@@ -120,16 +141,20 @@ func (s *GrpcServer) Start() error {
 		log.Info().Msgf("ctx.Done: %v", done)
 	}
 
+	if err := statusServer.Shutdown(ctx); err != nil {
+		log.Info().Msgf("statusServer.Shutdown: %v", err)
+	}
+
 	if err := gatewayServer.Shutdown(ctx); err != nil {
 		log.Info().Msgf("gatewayServer.Shutdown: %v", err)
 	}
 
+	grpcServer.GracefulStop()
+	log.Info().Msgf("Server shut down correctly")
+
 	if err := metricsServer.Shutdown(ctx); err != nil {
 		log.Info().Msgf("metricsServer.Shutdown: %v", err)
 	}
-
-	grpcServer.GracefulStop()
-	log.Info().Msgf("Server shut down correctly")
 
 	return nil
 }

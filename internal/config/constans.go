@@ -17,6 +17,12 @@ const (
 	MetricsPort = "METRICS_PORT"
 	MetricsPath = "METRICS_PATH"
 
+	// Status environment constants.
+	StatusHost          = "STATUS_HOST"
+	StatusPort          = "STATUS_PORT"
+	StatusLivenessPath  = "STATUS_LIVENESS_PATH"
+	StatusReadinessPath = "STATUS_READINESS_PATH"
+
 	// DATABASE environment constants.
 	DatabaseHost     = "DATABASE_HOST"
 	DatabasePort     = "DATABASE_PORT"

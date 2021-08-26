@@ -21,6 +21,7 @@ var (
 	Database *database
 	Metrics  *metrics
 	Kafka    *kafka
+	Status   *status
 )
 
 // config - microservice config.
@@ -31,41 +32,42 @@ type config struct {
 	Metrics  metrics  `yaml:"metrics"`
 	Database database `yaml:"database"`
 	Kafka    kafka    `yaml:"kafka"`
+	Status   status   `yaml:"status"`
 }
 
 // gRPC config.
 type project struct {
+	Debug       bool   `yaml:"debug"`
 	Name        string `yaml:"name"`
 	Version     string `yaml:"version"`
 	Environment string `yaml:"environment"`
-	Debug       bool   `yaml:"debug"`
 }
 
 // gRPC config.
 type gRPC struct {
-	Host              string `yaml:"host" env:"GRPC_HOST"`
 	Port              int    `yaml:"port" env:"GRPC_PORT"`
 	MaxConnectionIdle int64  `yaml:"maxConnectionIdle" env:"GRPC_MAX_CONN_IDLE"`
 	Timeout           int64  `yaml:"timeout" env:"GRPC_TIMEOUT"`
 	MaxConnectionAge  int64  `yaml:"maxConnectionAge" env:"GRPC_CONN_AGE"`
+	Host              string `yaml:"host" env:"GRPC_HOST"`
 }
 
 // gateway config.
 type gateway struct {
-	Host string `yaml:"host" env:"GATEWAY_HOST"`
 	Port int    `yaml:"port" env:"GATEWAY_PORT"`
+	Host string `yaml:"host" env:"GATEWAY_HOST"`
 }
 
 type metrics struct {
-	Host string `yaml:"host" env:"METRICS_HOST"`
 	Port int    `yaml:"port" env:"METRICS_PORT"`
+	Host string `yaml:"host" env:"METRICS_HOST"`
 	Path string `yaml:"path" env:"METRICS_PATH"`
 }
 
 // Postgres config.
 type database struct {
-	Host     string `yaml:"host" env:"DATABASE_HOST"`
 	Port     int    `yaml:"port" env:"DATABASE_PORT"`
+	Host     string `yaml:"host" env:"DATABASE_HOST"`
 	User     string `yaml:"user" env:"DATABASE_USER"`
 	Password string `yaml:"password" env:"DATABASE_PASSWORD"`
 	Name     string `yaml:"name" env:"DATABASE_NAME"`
@@ -73,11 +75,19 @@ type database struct {
 	Driver   string `yaml:"driver" env:"DATABASE_DRIVER"`
 }
 
-// Postgres config.
+// Kafka config.
 type kafka struct {
-	Brokers  []string `yaml:"brokers"`
-	Topic    string   `yaml:"topic"`
 	Capacity uint64   `yaml:"capacity"`
+	Topic    string   `yaml:"topic"`
+	Brokers  []string `yaml:"brokers"`
+}
+
+// Service status config.
+type status struct {
+	Port          int    `yaml:"port" env:"STATUS_PORT"`
+	Host          string `yaml:"host" env:"STATUS_HOST"`
+	LivenessPath  string `yaml:"livenessPath" env:"LIVENESS_PATH"`
+	ReadinessPath string `yaml:"readinessPath" env:"READINESS_PATH"`
 }
 
 var fileConfig = "config.yml"
@@ -119,6 +129,7 @@ func UpdateConfig() error {
 	Metrics = &cfg.Metrics
 	Database = &cfg.Database
 	Kafka = &cfg.Kafka
+	Status = &cfg.Status
 
 	return nil
 }

@@ -2,8 +2,10 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"sync/atomic"
@@ -43,6 +45,7 @@ func NewGrpcServer(db *sqlx.DB, batchSize uint) *GrpcServer {
 
 func (s *GrpcServer) Start() error {
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	im := interceptors.NewInterceptorManager()
 
@@ -54,7 +57,7 @@ func (s *GrpcServer) Start() error {
 
 	go func() {
 		log.Info().Msgf("Gateway server is running on %s", gatewayAddr)
-		if err := gatewayServer.ListenAndServe(); err != nil {
+		if err := gatewayServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Error().Err(err).Msg("Failed running gateway server")
 			cancel()
 		}
@@ -64,7 +67,7 @@ func (s *GrpcServer) Start() error {
 
 	go func() {
 		log.Info().Msgf("Metrics server is running on %s", metricsAddr)
-		if err := metricsServer.ListenAndServe(); err != nil {
+		if err := metricsServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Error().Err(err).Msg("Failed running metrics server")
 			cancel()
 		}
@@ -78,9 +81,8 @@ func (s *GrpcServer) Start() error {
 
 	go func() {
 		log.Info().Msgf("Status server is running on %s", statusAdrr)
-		if err := statusServer.ListenAndServe(); err != nil {
+		if err := statusServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Error().Err(err).Msg("Failed running status server")
-			cancel()
 		}
 	}()
 
@@ -141,20 +143,26 @@ func (s *GrpcServer) Start() error {
 		log.Info().Msgf("ctx.Done: %v", done)
 	}
 
-	if err := statusServer.Shutdown(ctx); err != nil {
-		log.Error().Err(err).Msg("Failed statusServer.Shutdown")
+	if err := gatewayServer.Shutdown(ctx); err != nil {
+		log.Error().Err(err).Msg("gatewayServer.Shutdown")
+	} else {
+		log.Info().Msg("gatewayServer shut down correctly")
 	}
 
-	if err := gatewayServer.Shutdown(ctx); err != nil {
-		log.Error().Err(err).Msg("Failed gatewayServer.Shutdown")
+	if err := statusServer.Shutdown(ctx); err != nil {
+		log.Error().Err(err).Msg("statusServer.Shutdown")
+	} else {
+		log.Info().Msg("statusServer shut down correctly")
+	}
+
+	if err := metricsServer.Shutdown(ctx); err != nil {
+		log.Error().Err(err).Msg("metricsServer.Shutdown")
+	} else {
+		log.Info().Msg("metricsServer shut down correctly")
 	}
 
 	grpcServer.GracefulStop()
 	log.Info().Msgf("grpcServer shut down correctly")
-
-	if err := metricsServer.Shutdown(ctx); err != nil {
-		log.Error().Err(err).Msg("Failed metricsServer.Shutdown")
-	}
 
 	return nil
 }

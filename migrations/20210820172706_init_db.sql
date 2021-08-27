@@ -7,6 +7,7 @@ CREATE TABLE "offer" (
   "grade" BIGINT NOT NULL
 );
 
+-- using index
 CREATE UNIQUE INDEX "offer.user_team_id_index" ON "offer"("user_id", "team_id");
 -- +goose StatementEnd
 

@@ -65,7 +65,7 @@ message Offer {
   uint64 team_id = 4;
 }
 
-// CreateOfferV1Request ...
+// CreateOfferV1Request - create offer. Fields are validated
 message CreateOfferV1Request {
   uint64 user_id = 2 [(validate.rules).uint64.gt = 0];
   uint64 grade   = 3 [(validate.rules).uint64.gt = 0];
@@ -87,7 +87,7 @@ message MultiCreateOfferV1Response {
   uint64 count = 1;
 }
 
-// DescribeOfferV1Request ...
+// DescribeOfferV1Request - get offer by `offer_id`. Fields are validated
 message DescribeOfferV1Request {
   uint64 offer_id = 1 [(validate.rules).uint64.gt = 0];
 }
@@ -97,7 +97,7 @@ message DescribeOfferV1Response {
   Offer offer = 1;
 }
 
-// ListOfferV1Request ...
+// ListOfferV1Request - Fields are validated
 message ListOfferV1Request {
   PaginationInput pagination = 1 [(validate.rules).message.required = true];
 }
@@ -108,7 +108,7 @@ message ListOfferV1Response {
   repeated Offer offers     = 2;
 }
 
-// UpdateOfferV1Request ...
+// UpdateOfferV1Request - update offer `by` id, fields are validated
 message UpdateOfferV1Request {
   uint64 id      = 1 [(validate.rules).uint64.gt = 0];
   uint64 user_id = 2 [(validate.rules).uint64.gt = 0];
@@ -119,7 +119,7 @@ message UpdateOfferV1Request {
 // UpdateOfferV1Response ...
 message UpdateOfferV1Response {}
 
-// RemoveOfferV1Request ...
+// RemoveOfferV1Request - remove offer by `offer_id`. Fields are validated
 message RemoveOfferV1Request {
   uint64 offer_id = 1 [(validate.rules).uint64.gt = 0];
 }
@@ -144,7 +144,7 @@ message PaginationInfo {
 }
 
 // PaginationInput Offset pagination uses skip and take to skip a certain number
-// of results and select a limited range
+// of results and select a limited range. Fields are validated
 message PaginationInput {
   // Deprecated: Cursor-based pagination uses cursor and take to return a
   // limited set of results before or after a given cursor

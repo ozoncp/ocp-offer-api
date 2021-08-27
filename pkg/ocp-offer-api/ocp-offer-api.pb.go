@@ -94,7 +94,7 @@ func (x *Offer) GetTeamId() uint64 {
 	return 0
 }
 
-// CreateOfferV1Request ...
+// CreateOfferV1Request - create offer. Fields are validated
 type CreateOfferV1Request struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -302,7 +302,7 @@ func (x *MultiCreateOfferV1Response) GetCount() uint64 {
 	return 0
 }
 
-// DescribeOfferV1Request ...
+// DescribeOfferV1Request - get offer by `offer_id`. Fields are validated
 type DescribeOfferV1Request struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -398,7 +398,7 @@ func (x *DescribeOfferV1Response) GetOffer() *Offer {
 	return nil
 }
 
-// ListOfferV1Request ...
+// ListOfferV1Request - Fields are validated
 type ListOfferV1Request struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -502,7 +502,7 @@ func (x *ListOfferV1Response) GetOffers() []*Offer {
 	return nil
 }
 
-// UpdateOfferV1Request ...
+// UpdateOfferV1Request - update offer `by` id, fields are validated
 type UpdateOfferV1Request struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -613,7 +613,7 @@ func (*UpdateOfferV1Response) Descriptor() ([]byte, []int) {
 	return file_api_ocp_offer_api_ocp_offer_api_proto_rawDescGZIP(), []int{10}
 }
 
-// RemoveOfferV1Request ...
+// RemoveOfferV1Request - remove offer by `offer_id`. Fields are validated
 type RemoveOfferV1Request struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -795,7 +795,7 @@ func (x *PaginationInfo) GetHasPreviousPage() bool {
 }
 
 // PaginationInput Offset pagination uses skip and take to skip a certain number
-// of results and select a limited range
+// of results and select a limited range. Fields are validated
 type PaginationInput struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

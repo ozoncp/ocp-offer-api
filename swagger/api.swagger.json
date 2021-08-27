@@ -235,7 +235,7 @@
           "format": "uint64"
         }
       },
-      "description": "CreateOfferV1Request ..."
+      "title": "CreateOfferV1Request - create offer. Fields are validated"
     },
     "apiCreateOfferV1Response": {
       "type": "object",
@@ -368,7 +368,7 @@
           "title": "The number of skipped elements, when using the cursor, the counting starts\nfrom the specified id"
         }
       },
-      "title": "PaginationInput Offset pagination uses skip and take to skip a certain number\nof results and select a limited range"
+      "title": "PaginationInput Offset pagination uses skip and take to skip a certain number\nof results and select a limited range. Fields are validated"
     },
     "apiRemoveOfferV1Response": {
       "type": "object",
@@ -394,7 +394,7 @@
           "format": "uint64"
         }
       },
-      "description": "UpdateOfferV1Request ..."
+      "title": "UpdateOfferV1Request - update offer `by` id, fields are validated"
     },
     "apiUpdateOfferV1Response": {
       "type": "object",

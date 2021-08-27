@@ -142,18 +142,18 @@ func (s *GrpcServer) Start() error {
 	}
 
 	if err := statusServer.Shutdown(ctx); err != nil {
-		log.Info().Msgf("statusServer.Shutdown: %v", err)
+		log.Info().Msgf("Failed statusServer.Shutdown: %v", err)
 	}
 
 	if err := gatewayServer.Shutdown(ctx); err != nil {
-		log.Info().Msgf("gatewayServer.Shutdown: %v", err)
+		log.Info().Msgf("Failed gatewayServer.Shutdown: %v", err)
 	}
 
 	grpcServer.GracefulStop()
-	log.Info().Msgf("Server shut down correctly")
+	log.Info().Msgf("grpcServer shut down correctly")
 
 	if err := metricsServer.Shutdown(ctx); err != nil {
-		log.Info().Msgf("metricsServer.Shutdown: %v", err)
+		log.Info().Msgf("Failed metricsServer.Shutdown: %v", err)
 	}
 
 	return nil

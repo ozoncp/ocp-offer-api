@@ -70,6 +70,7 @@ func (o *offerAPI) CreateOfferV1(ctx context.Context, req *pb.CreateOfferV1Reque
 	}
 
 	totalSuccessCreated.Inc()
+
 	log.Debug().Msg("CreateOfferV1 - success")
 
 	return &pb.CreateOfferV1Response{
@@ -206,6 +207,7 @@ func (o *offerAPI) UpdateOfferV1(ctx context.Context, req *pb.UpdateOfferV1Reque
 	}
 
 	totalSuccessUpdated.Inc()
+
 	log.Debug().Msg("UpdateOfferV1 - success")
 
 	return &pb.UpdateOfferV1Response{}, nil
@@ -225,6 +227,7 @@ func (o *offerAPI) RemoveOfferV1(ctx context.Context, req *pb.RemoveOfferV1Reque
 	}
 
 	totalSuccessDeleted.Inc()
+
 	log.Debug().Msg("RemoveOfferV1 - success")
 
 	return &pb.RemoveOfferV1Response{}, nil

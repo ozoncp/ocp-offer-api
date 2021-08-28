@@ -143,6 +143,8 @@ func (s *GrpcServer) Start() error {
 		log.Info().Msgf("ctx.Done: %v", done)
 	}
 
+	isReady.Store(false)
+
 	if err := gatewayServer.Shutdown(ctx); err != nil {
 		log.Error().Err(err).Msg("gatewayServer.Shutdown")
 	} else {

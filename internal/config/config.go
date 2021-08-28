@@ -3,9 +3,11 @@ package config
 import (
 	"fmt"
 	"os"
+	"os/signal"
 	"reflect"
 	"strconv"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -101,6 +103,21 @@ func init() {
 
 			return
 		}
+
+		hotReload := make(chan os.Signal, 1)
+		signal.Notify(hotReload, syscall.SIGHUP)
+
+		go func() {
+			for {
+				<-hotReload
+				log.Info().Msgf("Hot reload configurations ...")
+				if err := UpdateConfig(); err != nil {
+					log.Error().Err(err).Msgf("Error on reloading config")
+					os.Exit(1)
+				}
+				log.Info().Msg("Config hot reloading was successful")
+			}
+		}()
 
 		log.Info().Msg("Config initialization was successful")
 	})

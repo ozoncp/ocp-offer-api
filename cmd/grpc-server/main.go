@@ -33,6 +33,8 @@ func main() {
 	if err := server.NewGrpcServer(db, batchSize).Start(); err != nil {
 		log.Fatal().Err(err).Msg("Failed creating gRPC server")
 	}
+
+	db.Close()
 }
 
 func createDB() *sqlx.DB {

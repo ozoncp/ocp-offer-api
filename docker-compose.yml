@@ -135,7 +135,9 @@ services:
       - 12201:12201/udp
 
   server:
-    build: .
+    build:
+      context: .
+      target: server
     restart: unless-stopped
     ports:
       - '50051:50051' # gRPC
@@ -146,6 +148,25 @@ services:
       options:
         gelf-address: 'udp://localhost:12201'
         tag: ocp-offer-server
+    depends_on:
+      - database
+      - kafka
+    links:
+      - database
+      - kafka
+    volumes:
+      - './config.yml:/root/config.yml'
+
+  consumer:
+    build:
+      context: .
+      target: consumer
+    restart: unless-stopped
+    logging:
+      driver: 'gelf'
+      options:
+        gelf-address: 'udp://localhost:12201'
+        tag: ocp-offer-consumer
     depends_on:
       - database
       - kafka

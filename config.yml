@@ -39,5 +39,6 @@ kafka:
   topic: "ocp-offer-api"
   brokers:
     - "kafka:9092"
+    - "localhost:9094"
   capacity: 512
   groupId: "example"

@@ -17,6 +17,15 @@ service OcpOfferApiService {
     };
   }
 
+  // TaskCreateOfferV1 - Create an offer
+  rpc TaskCreateOfferV1(TaskCreateOfferV1Request)
+      returns (TaskCreateOfferV1Response) {
+    option (google.api.http) = {
+      post: "/v1/task/offers"
+      body: "*"
+    };
+  }
+
   // MultiCreateOfferV1 - Multiple offer creation
   rpc MultiCreateOfferV1(MultiCreateOfferV1Request)
       returns (MultiCreateOfferV1Response) {
@@ -30,7 +39,7 @@ service OcpOfferApiService {
   rpc DescribeOfferV1(DescribeOfferV1Request)
       returns (DescribeOfferV1Response) {
     option (google.api.http) = {
-      get: "/v1/offers/{offer_id}"
+      get: "/v1/offers/{id}"
     };
   }
 
@@ -49,10 +58,27 @@ service OcpOfferApiService {
     };
   }
 
+  // TaskUpdateOfferV1 - Updates the offer
+  rpc TaskUpdateOfferV1(TaskUpdateOfferV1Request)
+      returns (TaskUpdateOfferV1Response) {
+    option (google.api.http) = {
+      put: "/v1/task/offers",
+      body: "*"
+    };
+  }
+
   // RemoveOfferV1 - Removes offer
   rpc RemoveOfferV1(RemoveOfferV1Request) returns (RemoveOfferV1Response) {
     option (google.api.http) = {
-      delete: "/v1/offers/{offer_id}"
+      delete: "/v1/offers/{id}"
+    };
+  }
+
+  // TaskRemoveOfferV1 - Removes offer
+  rpc TaskRemoveOfferV1(TaskRemoveOfferV1Request)
+      returns (TaskRemoveOfferV1Response) {
+    option (google.api.http) = {
+      delete: "/v1/task/offers/{id}"
     };
   }
 }
@@ -77,6 +103,16 @@ message CreateOfferV1Response {
   uint64 id = 1;
 }
 
+// TaskCreateOfferV1Request - create offer. Fields are validated
+message TaskCreateOfferV1Request {
+  uint64 user_id = 2 [(validate.rules).uint64.gt = 0];
+  uint64 grade   = 3 [(validate.rules).uint64.gt = 0];
+  uint64 team_id = 4 [(validate.rules).uint64.gt = 0];
+}
+
+// TaskCreateOfferV1Response ...
+message TaskCreateOfferV1Response {}
+
 // MultiCreateOfferV1Request ...
 message MultiCreateOfferV1Request {
   repeated CreateOfferV1Request offers = 1;
@@ -87,9 +123,9 @@ message MultiCreateOfferV1Response {
   uint64 count = 1;
 }
 
-// DescribeOfferV1Request - get offer by `offer_id`. Fields are validated
+// DescribeOfferV1Request - get offer by `id`. Fields are validated
 message DescribeOfferV1Request {
-  uint64 offer_id = 1 [(validate.rules).uint64.gt = 0];
+  uint64 id = 1 [(validate.rules).uint64.gt = 0];
 }
 
 // DescribeOfferV1Response ...
@@ -119,13 +155,32 @@ message UpdateOfferV1Request {
 // UpdateOfferV1Response ...
 message UpdateOfferV1Response {}
 
-// RemoveOfferV1Request - remove offer by `offer_id`. Fields are validated
+// TaskUpdateOfferV1Request - update offer `by` id, fields are validated
+message TaskUpdateOfferV1Request {
+  uint64 id      = 1 [(validate.rules).uint64.gt = 0];
+  uint64 user_id = 2 [(validate.rules).uint64.gt = 0];
+  uint64 grade   = 3 [(validate.rules).uint64.gt = 0];
+  uint64 team_id = 4 [(validate.rules).uint64.gt = 0];
+}
+
+// TaskUpdateOfferV1Response ...
+message TaskUpdateOfferV1Response {}
+
+// RemoveOfferV1Request - remove offer by `id`. Fields are validated
 message RemoveOfferV1Request {
-  uint64 offer_id = 1 [(validate.rules).uint64.gt = 0];
+  uint64 id = 1 [(validate.rules).uint64.gt = 0];
 }
 
 // RemoveOfferV1Response ...
 message RemoveOfferV1Response {}
+
+// TaskRemoveOfferV1Request - remove offer by `id`. Fields are validated
+message TaskRemoveOfferV1Request {
+  uint64 id = 1 [(validate.rules).uint64.gt = 0];
+}
+
+// TaskRemoveOfferV1Response ...
+message TaskRemoveOfferV1Response {}
 
 // PaginationInfo - Contains information about the current state of pagination
 message PaginationInfo {

@@ -155,7 +155,7 @@
         ]
       }
     },
-    "/v1/offers/{offer_id}": {
+    "/v1/offers/{id}": {
       "get": {
         "summary": "DescribeOfferV1 - Get information about the offer",
         "operationId": "OcpOfferApiService_DescribeOfferV1",
@@ -175,7 +175,7 @@
         },
         "parameters": [
           {
-            "name": "offer_id",
+            "name": "id",
             "in": "path",
             "required": true,
             "type": "string",
@@ -205,7 +205,103 @@
         },
         "parameters": [
           {
-            "name": "offer_id",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "OcpOfferApiService"
+        ]
+      }
+    },
+    "/v1/task/offers": {
+      "post": {
+        "summary": "TaskCreateOfferV1 - Create an offer",
+        "operationId": "OcpOfferApiService_TaskCreateOfferV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiTaskCreateOfferV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiTaskCreateOfferV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "OcpOfferApiService"
+        ]
+      },
+      "put": {
+        "summary": "TaskUpdateOfferV1 - Updates the offer",
+        "operationId": "OcpOfferApiService_TaskUpdateOfferV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiTaskUpdateOfferV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiTaskUpdateOfferV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "OcpOfferApiService"
+        ]
+      }
+    },
+    "/v1/task/offers/{id}": {
+      "delete": {
+        "summary": "TaskRemoveOfferV1 - Removes offer",
+        "operationId": "OcpOfferApiService_TaskRemoveOfferV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiTaskRemoveOfferV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
             "in": "path",
             "required": true,
             "type": "string",
@@ -373,6 +469,58 @@
     "apiRemoveOfferV1Response": {
       "type": "object",
       "description": "RemoveOfferV1Response ..."
+    },
+    "apiTaskCreateOfferV1Request": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "grade": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "team_id": {
+          "type": "string",
+          "format": "uint64"
+        }
+      },
+      "title": "TaskCreateOfferV1Request - create offer. Fields are validated"
+    },
+    "apiTaskCreateOfferV1Response": {
+      "type": "object",
+      "description": "TaskCreateOfferV1Response ..."
+    },
+    "apiTaskRemoveOfferV1Response": {
+      "type": "object",
+      "description": "TaskRemoveOfferV1Response ..."
+    },
+    "apiTaskUpdateOfferV1Request": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "grade": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "team_id": {
+          "type": "string",
+          "format": "uint64"
+        }
+      },
+      "title": "TaskUpdateOfferV1Request - update offer `by` id, fields are validated"
+    },
+    "apiTaskUpdateOfferV1Response": {
+      "type": "object",
+      "description": "TaskUpdateOfferV1Response ..."
     },
     "apiUpdateOfferV1Request": {
       "type": "object",

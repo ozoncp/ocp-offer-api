@@ -6,6 +6,7 @@ require (
 	github.com/HdrHistogram/hdrhistogram-go v1.1.1 // indirect
 	github.com/Masterminds/squirrel v1.5.0
 	github.com/Shopify/sarama v1.29.1
+	github.com/fatih/structs v1.1.0
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/golang/mock v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
@@ -15,6 +16,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/lib/pq v1.10.2
 	github.com/mattn/go-sqlite3 v1.14.8 // indirect
+	github.com/mitchellh/mapstructure v1.4.1
 	github.com/onsi/ginkgo v1.16.4
 	github.com/onsi/gomega v1.15.0
 	github.com/opentracing/opentracing-go v1.2.0

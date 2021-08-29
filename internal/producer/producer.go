@@ -3,124 +3,122 @@ package producer
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/Shopify/sarama"
+	"github.com/fatih/structs"
+	"github.com/opentracing/opentracing-go"
+	"github.com/ozoncp/ocp-offer-api/internal/models"
 	"github.com/rs/zerolog/log"
 )
 
-type Producer interface {
-	Send(msg Message) error
+type IProducer interface {
+	CreateOffer(offer models.Offer) error
+	UpdateOffer(offer models.Offer) error
+	DeleteOffer(offerID uint64) error
 }
 
-type producer struct {
-	dataProducer sarama.SyncProducer
-	topic        string
-	msgChan      chan *sarama.ProducerMessage
+type Producer struct {
+	producer    sarama.SyncProducer
+	topicName   string
+	messageChan chan *sarama.ProducerMessage
 }
 
-type MessageType int
+type MessageType uint16
 
 const (
-	Create MessageType = iota
-	Update
-	Remove
+	TypeCreateOffer MessageType = iota
+	TypeUpdateOffer
+	TypeDeleteOffer
 )
 
 type Message struct {
-	Type MessageType
-	Body map[string]interface{}
+	Type  MessageType
+	Value map[string]interface{}
 }
 
-func New(ctx context.Context, addrs []string, topic string, capacity uint64) (Producer, error) {
+func New(ctx context.Context, brokers []string, topicName string, capacity uint64) (IProducer, error) {
 	config := sarama.NewConfig()
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Return.Successes = true
-
-	p, err := sarama.NewSyncProducer(addrs, config)
-
+	producer, err := sarama.NewSyncProducer(brokers, config)
 	if err != nil {
 		return nil, err
 	}
 
-	newProducer := &producer{
-		dataProducer: p,
-		topic:        topic,
-		msgChan:      make(chan *sarama.ProducerMessage, capacity),
+	p := &Producer{
+		producer:    producer,
+		topicName:   topicName,
+		messageChan: make(chan *sarama.ProducerMessage, capacity),
 	}
 
-	go newProducer.handleMessage(ctx)
+	go p.listener(ctx)
 
-	return newProducer, nil
+	return p, nil
 }
 
-func (dProducer *producer) handleMessage(ctx context.Context) {
+func (p *Producer) CreateOffer(offer models.Offer) error {
+	return p.publish("Producer.CreateOffer", TypeCreateOffer, structs.Map(offer))
+}
+
+func (p *Producer) UpdateOffer(offer models.Offer) error {
+	return p.publish("Producer.UpdateOffer", TypeUpdateOffer, structs.Map(offer))
+}
+
+func (p *Producer) DeleteOffer(offerID uint64) error {
+	return p.publish("Producer.DeleteOffer", TypeDeleteOffer, structs.Map(models.Offer{ID: offerID}))
+}
+
+// ---
+
+func (p *Producer) listener(ctx context.Context) {
 	for {
 		select {
-		case msg := <-dProducer.msgChan:
-			partition, offset, err := dProducer.dataProducer.SendMessage(msg)
+		case msg := <-p.messageChan:
+			partition, offset, err := p.producer.SendMessage(msg)
 
 			if err != nil {
-				log.Error().Err(err).Msg("Failed to send message to kafka, retry ...")
-				dProducer.msgChan <- msg
-			} else {
-				log.Info().
-					Int32("partition", partition).
-					Int64("offset", offset).
-					Msg("Message sent successfully to kafka")
+				log.Error().Msgf("failed to send message to kafka: %v", err)
+				log.Error().Msgf("retry ...")
+
+				p.messageChan <- msg
 			}
 
+			log.Info().
+				Int32("partition", partition).
+				Str("topic", msg.Topic).
+				Msgf("Delivered message to topic %s [%d] at offset %v", msg.Topic, partition, offset)
+
 		case <-ctx.Done():
-			close(dProducer.msgChan)
-			dProducer.dataProducer.Close()
+			close(p.messageChan)
+			p.producer.Close()
 
 			return
 		}
 	}
 }
 
-func (dProducer *producer) Send(msg Message) error {
-	dataBytes, err := json.Marshal(msg)
+func (p *Producer) publish(spanName string, msgType MessageType, value map[string]interface{}) error {
+	span := opentracing.GlobalTracer().StartSpan(spanName)
+	defer span.Finish()
 
+	b, err := json.Marshal(
+		Message{
+			Type:  msgType,
+			Value: value,
+		})
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to marshal message to json")
-
 		return err
 	}
 
-	dProducer.msgChan <- &sarama.ProducerMessage{
-		Topic:     dProducer.topic,
-		Key:       sarama.StringEncoder(dProducer.topic),
-		Value:     sarama.StringEncoder(dataBytes),
+	p.messageChan <- &sarama.ProducerMessage{
+		Topic:     p.topicName,
+		Key:       sarama.StringEncoder(p.topicName),
+		Value:     sarama.StringEncoder(b),
 		Partition: -1,
-		Timestamp: time.Time{},
+		Timestamp: time.Now(),
 	}
 
 	return nil
-}
-
-func CreateMessage(msgType MessageType, id uint64, timestamp time.Time) Message {
-	return Message{
-		Type: msgType,
-		Body: map[string]interface{}{
-			"Id":        id,
-			"Operation": fmt.Sprintf("%s offer", convertMessageTypeToString(msgType)),
-			"Timestamp": timestamp,
-		},
-	}
-}
-
-func convertMessageTypeToString(msgType MessageType) string {
-	switch msgType {
-	case Create:
-		return "Created"
-	case Update:
-		return "Updated"
-	case Remove:
-		return "Removed"
-	}
-
-	return "Unknown message type"
 }

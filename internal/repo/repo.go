@@ -112,7 +112,10 @@ func (r *Repository) DescribeOffer(ctx context.Context, offerID uint64) (*models
 	query := sq.
 		Select("id", "user_id", "team_id", "grade").
 		From("offer").
-		Where(sq.Eq{"id": offerID}).
+		Where(sq.And{
+			sq.Eq{"id": offerID},
+			sq.Eq{"is_deleted": false},
+		}).
 		RunWith(r.db).
 		PlaceholderFormat(sq.Dollar)
 

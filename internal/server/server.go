@@ -107,13 +107,14 @@ func (s *GrpcServer) Start() error {
 		)),
 	)
 
-	r := repo.NewRepo(s.db, s.batchSize)
-	dataProducer, err := producer.New(ctx, cfg.Kafka.Brokers, cfg.Kafka.Topic, cfg.Kafka.Capacity)
+	p, err := producer.New(ctx, cfg.Kafka.Brokers, cfg.Kafka.Topic, cfg.Kafka.Capacity)
 	if err != nil {
 		return fmt.Errorf("failed to create a producer: %w", err)
 	}
 
-	pb.RegisterOcpOfferApiServiceServer(grpcServer, api.NewOfferAPI(r, dataProducer))
+	r := repo.NewRepo(s.db, s.batchSize)
+
+	pb.RegisterOcpOfferApiServiceServer(grpcServer, api.NewOfferAPI(r, p))
 	grpc_prometheus.Register(grpcServer)
 
 	go func() {

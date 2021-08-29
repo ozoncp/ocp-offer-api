@@ -81,6 +81,7 @@ type database struct {
 type kafka struct {
 	Capacity uint64   `yaml:"capacity"`
 	Topic    string   `yaml:"topic"`
+	GroupID  string   `yaml:"groupId"`
 	Brokers  []string `yaml:"brokers"`
 }
 

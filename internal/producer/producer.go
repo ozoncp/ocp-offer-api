@@ -9,10 +9,12 @@ import (
 	"github.com/fatih/structs"
 	"github.com/opentracing/opentracing-go"
 	"github.com/ozoncp/ocp-offer-api/internal/models"
+	utils "github.com/ozoncp/ocp-offer-api/internal/utils/models"
 	"github.com/rs/zerolog/log"
 )
 
 type IProducer interface {
+	MultiCreateOffers(offers []models.Offer, batchSize uint64)
 	CreateOffer(offer models.Offer) error
 	UpdateOffer(offer models.Offer) error
 	DeleteOffer(offerID uint64) error
@@ -30,6 +32,7 @@ const (
 	TypeCreateOffer MessageType = iota
 	TypeUpdateOffer
 	TypeDeleteOffer
+	TypeMultiCreateOffers
 )
 
 type Message struct {
@@ -56,6 +59,23 @@ func New(ctx context.Context, brokers []string, topicName string, capacity uint6
 	go p.listener(ctx)
 
 	return p, nil
+}
+
+func (p *Producer) MultiCreateOffers(offers []models.Offer, batchSize uint64) {
+	batches, err := utils.SplitOffersToBatches(offers, uint(batchSize))
+	if err != nil {
+		log.Error().Err(err).Msg("Error splitting offers")
+	}
+
+	for _, batch := range batches {
+		if err := p.publish(
+			"Producer.MultiCreateOffers",
+			TypeMultiCreateOffers,
+			utils.ConvertOffersSliceToMapString(batch),
+		); err != nil {
+			log.Error().Err(err).Msg("Error publish batch")
+		}
+	}
 }
 
 func (p *Producer) CreateOffer(offer models.Offer) error {

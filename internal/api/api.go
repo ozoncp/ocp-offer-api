@@ -253,6 +253,32 @@ func (o *offerAPI) TaskCreateOfferV1(ctx context.Context, req *pb.TaskCreateOffe
 
 // ----------------------------------------------------------------
 
+func (o *offerAPI) TaskMultiCreateOfferV1(ctx context.Context, req *pb.TaskMultiCreateOfferV1Request) (*pb.TaskMultiCreateOfferV1Response, error) {
+	if err := req.Validate(); err != nil {
+		log.Error().Err(err).Msg("TaskMultiCreateOfferV1 - invalid argument")
+
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	offers := make([]models.Offer, len(req.Offers))
+
+	for i, offer := range req.Offers {
+		offers[i] = models.Offer{
+			UserID: offer.UserId,
+			TeamID: offer.TeamId,
+			Grade:  offer.Grade,
+		}
+	}
+
+	o.producer.MultiCreateOffers(offers, req.BatchSize)
+
+	log.Debug().Msg("TaskMultiCreateOfferV1 -- success")
+
+	return &pb.TaskMultiCreateOfferV1Response{}, nil
+}
+
+// ----------------------------------------------------------------
+
 func (o *offerAPI) TaskUpdateOfferV1(ctx context.Context, req *pb.TaskUpdateOfferV1Request) (*pb.TaskUpdateOfferV1Response, error) {
 	if err := req.Validate(); err != nil {
 		log.Error().Err(err).Msg("TaskUpdateOfferV1 - invalid argument")

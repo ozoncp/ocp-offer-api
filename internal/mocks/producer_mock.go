@@ -62,6 +62,18 @@ func (mr *MockIProducerMockRecorder) DeleteOffer(arg0 interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteOffer", reflect.TypeOf((*MockIProducer)(nil).DeleteOffer), arg0)
 }
 
+// MultiCreateOffers mocks base method.
+func (m *MockIProducer) MultiCreateOffers(arg0 []models.Offer, arg1 uint64) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "MultiCreateOffers", arg0, arg1)
+}
+
+// MultiCreateOffers indicates an expected call of MultiCreateOffers.
+func (mr *MockIProducerMockRecorder) MultiCreateOffers(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MultiCreateOffers", reflect.TypeOf((*MockIProducer)(nil).MultiCreateOffers), arg0, arg1)
+}
+
 // UpdateOffer mocks base method.
 func (m *MockIProducer) UpdateOffer(arg0 models.Offer) error {
 	m.ctrl.T.Helper()

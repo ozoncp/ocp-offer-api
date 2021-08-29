@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/ozoncp/ocp-offer-api/internal/models"
 )
@@ -16,9 +17,12 @@ func SplitOffersToBatches(source []models.Offer, batchSize uint) ([][]models.Off
 		return nil, errors.New("the batch size must not be less than zero or equal to zero")
 	}
 
-	// Проверка на то, что количество батчей не длиннее размера слайса.
+	if len(source) == 0 {
+		return [][]models.Offer{}, nil
+	}
+
 	if batchSize > uint(len(source)) {
-		return nil, errors.New("the batch size is larger than the slice length")
+		batchSize = uint(len(source))
 	}
 
 	// Слайс это структура, которая имеет указатель на выделенный участок памяти с массивом, его длину и вместимость.
@@ -67,4 +71,34 @@ func ConvertOffersSliceToMap(source []models.Offer) (map[uint64]models.Offer, er
 	}
 
 	return result, nil
+}
+
+func ConvertOffersSliceToMapString(source []models.Offer) map[string]interface{} {
+	if source == nil {
+		return map[string]interface{}{}
+	}
+
+	result := make(map[string]interface{}, len(source))
+
+	for i, offer := range source {
+		result[fmt.Sprintf("%d", i)] = offer
+	}
+
+	return result
+}
+
+func ConvertOffersMapStringToSlice(source map[string]models.Offer) []models.Offer {
+	if source == nil {
+		return []models.Offer{}
+	}
+
+	result := make([]models.Offer, len(source))
+
+	i := 0
+	for _, offer := range source {
+		result[i] = offer
+		i++
+	}
+
+	return result
 }

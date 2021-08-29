@@ -24,6 +24,8 @@ type OcpOfferApiServiceClient interface {
 	TaskCreateOfferV1(ctx context.Context, in *TaskCreateOfferV1Request, opts ...grpc.CallOption) (*TaskCreateOfferV1Response, error)
 	// MultiCreateOfferV1 - Multiple offer creation
 	MultiCreateOfferV1(ctx context.Context, in *MultiCreateOfferV1Request, opts ...grpc.CallOption) (*MultiCreateOfferV1Response, error)
+	// TaskMultiCreateOfferV1 - Multiple offer creation
+	TaskMultiCreateOfferV1(ctx context.Context, in *TaskMultiCreateOfferV1Request, opts ...grpc.CallOption) (*TaskMultiCreateOfferV1Response, error)
 	// DescribeOfferV1 - Get information about the offer
 	DescribeOfferV1(ctx context.Context, in *DescribeOfferV1Request, opts ...grpc.CallOption) (*DescribeOfferV1Response, error)
 	// ListOfferV1 - Gets a list of offers
@@ -67,6 +69,15 @@ func (c *ocpOfferApiServiceClient) TaskCreateOfferV1(ctx context.Context, in *Ta
 func (c *ocpOfferApiServiceClient) MultiCreateOfferV1(ctx context.Context, in *MultiCreateOfferV1Request, opts ...grpc.CallOption) (*MultiCreateOfferV1Response, error) {
 	out := new(MultiCreateOfferV1Response)
 	err := c.cc.Invoke(ctx, "/ocp.offer.api.OcpOfferApiService/MultiCreateOfferV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ocpOfferApiServiceClient) TaskMultiCreateOfferV1(ctx context.Context, in *TaskMultiCreateOfferV1Request, opts ...grpc.CallOption) (*TaskMultiCreateOfferV1Response, error) {
+	out := new(TaskMultiCreateOfferV1Response)
+	err := c.cc.Invoke(ctx, "/ocp.offer.api.OcpOfferApiService/TaskMultiCreateOfferV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -137,6 +148,8 @@ type OcpOfferApiServiceServer interface {
 	TaskCreateOfferV1(context.Context, *TaskCreateOfferV1Request) (*TaskCreateOfferV1Response, error)
 	// MultiCreateOfferV1 - Multiple offer creation
 	MultiCreateOfferV1(context.Context, *MultiCreateOfferV1Request) (*MultiCreateOfferV1Response, error)
+	// TaskMultiCreateOfferV1 - Multiple offer creation
+	TaskMultiCreateOfferV1(context.Context, *TaskMultiCreateOfferV1Request) (*TaskMultiCreateOfferV1Response, error)
 	// DescribeOfferV1 - Get information about the offer
 	DescribeOfferV1(context.Context, *DescribeOfferV1Request) (*DescribeOfferV1Response, error)
 	// ListOfferV1 - Gets a list of offers
@@ -164,6 +177,9 @@ func (UnimplementedOcpOfferApiServiceServer) TaskCreateOfferV1(context.Context, 
 }
 func (UnimplementedOcpOfferApiServiceServer) MultiCreateOfferV1(context.Context, *MultiCreateOfferV1Request) (*MultiCreateOfferV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MultiCreateOfferV1 not implemented")
+}
+func (UnimplementedOcpOfferApiServiceServer) TaskMultiCreateOfferV1(context.Context, *TaskMultiCreateOfferV1Request) (*TaskMultiCreateOfferV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TaskMultiCreateOfferV1 not implemented")
 }
 func (UnimplementedOcpOfferApiServiceServer) DescribeOfferV1(context.Context, *DescribeOfferV1Request) (*DescribeOfferV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DescribeOfferV1 not implemented")
@@ -246,6 +262,24 @@ func _OcpOfferApiService_MultiCreateOfferV1_Handler(srv interface{}, ctx context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OcpOfferApiServiceServer).MultiCreateOfferV1(ctx, req.(*MultiCreateOfferV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OcpOfferApiService_TaskMultiCreateOfferV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TaskMultiCreateOfferV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OcpOfferApiServiceServer).TaskMultiCreateOfferV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocp.offer.api.OcpOfferApiService/TaskMultiCreateOfferV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OcpOfferApiServiceServer).TaskMultiCreateOfferV1(ctx, req.(*TaskMultiCreateOfferV1Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -376,6 +410,10 @@ var OcpOfferApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "MultiCreateOfferV1",
 			Handler:    _OcpOfferApiService_MultiCreateOfferV1_Handler,
+		},
+		{
+			MethodName: "TaskMultiCreateOfferV1",
+			Handler:    _OcpOfferApiService_TaskMultiCreateOfferV1_Handler,
 		},
 		{
 			MethodName: "DescribeOfferV1",

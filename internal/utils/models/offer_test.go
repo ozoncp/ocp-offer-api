@@ -121,8 +121,19 @@ func TestSplitOffersToBatches(t *testing.T) {
 				{ID: 9, UserID: 9, Grade: 9, TeamID: 9},
 			},
 			batchSize: 11,
-			result:    nil,
-			isError:   true,
+			result: [][]models.Offer{
+				{{ID: 0, UserID: 0, Grade: 0, TeamID: 0}},
+				{{ID: 1, UserID: 1, Grade: 1, TeamID: 1}},
+				{{ID: 2, UserID: 2, Grade: 2, TeamID: 2}},
+				{{ID: 3, UserID: 3, Grade: 3, TeamID: 3}},
+				{{ID: 4, UserID: 4, Grade: 4, TeamID: 4}},
+				{{ID: 5, UserID: 5, Grade: 5, TeamID: 5}},
+				{{ID: 6, UserID: 6, Grade: 6, TeamID: 6}},
+				{{ID: 7, UserID: 7, Grade: 7, TeamID: 7}},
+				{{ID: 8, UserID: 8, Grade: 8, TeamID: 8}},
+				{{ID: 9, UserID: 9, Grade: 9, TeamID: 9}},
+			},
+			isError: false,
 		},
 	}
 

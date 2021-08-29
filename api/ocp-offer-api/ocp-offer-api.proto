@@ -35,6 +35,15 @@ service OcpOfferApiService {
     };
   }
 
+  // TaskMultiCreateOfferV1 - Multiple offer creation
+  rpc TaskMultiCreateOfferV1(TaskMultiCreateOfferV1Request)
+      returns (TaskMultiCreateOfferV1Response) {
+    option (google.api.http) = {
+      post: "/v1/task/offers/multi"
+      body: "*"
+    };
+  }
+
   // DescribeOfferV1 - Get information about the offer
   rpc DescribeOfferV1(DescribeOfferV1Request)
       returns (DescribeOfferV1Response) {
@@ -122,6 +131,15 @@ message MultiCreateOfferV1Request {
 message MultiCreateOfferV1Response {
   uint64 count = 1;
 }
+
+// TaskMultiCreateOfferV1Request ...
+message TaskMultiCreateOfferV1Request {
+  repeated CreateOfferV1Request offers     = 1;
+  uint64                        batch_size = 2 [(validate.rules).uint64.gt = 0];
+}
+
+// TaskMultiCreateOfferV1Response ...
+message TaskMultiCreateOfferV1Response {}
 
 // DescribeOfferV1Request - get offer by `id`. Fields are validated
 message DescribeOfferV1Request {

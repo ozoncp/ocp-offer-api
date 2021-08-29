@@ -20,10 +20,14 @@ import (
 	"github.com/ozoncp/ocp-offer-api/internal/models"
 	"github.com/ozoncp/ocp-offer-api/internal/producer"
 	"github.com/ozoncp/ocp-offer-api/internal/repo"
+	"github.com/ozoncp/ocp-offer-api/internal/tracer"
+	utils "github.com/ozoncp/ocp-offer-api/internal/utils/models"
 	"github.com/rs/zerolog/log"
 )
 
 func main() {
+	tracer.InitTracing("ocp_offer_api-kafka_consumer")
+
 	version, err := sarama.ParseKafkaVersion("2.8.0")
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error parsing Kafka version")
@@ -90,9 +94,13 @@ type Consumer struct {
 	repo  repo.IRepository
 }
 
+var (
+	batchSize uint = 1
+)
+
 // Setup is run at the beginning of a new session, before ConsumeClaim.
 func (c *Consumer) Setup(sarama.ConsumerGroupSession) error {
-	c.repo = repo.NewRepo(createDB(), 256)
+	c.repo = repo.NewRepo(createDB(), batchSize)
 
 	// Mark the consumer as ready
 	close(c.ready)
@@ -128,6 +136,29 @@ func messageReceived(m *sarama.ConsumerMessage, r repo.IRepository) {
 		return
 	}
 
+	ctx := context.Background()
+
+	if msg.Type == producer.TypeMultiCreateOffers {
+		var mapOffers map[string]models.Offer
+
+		if err := mapstructure.Decode(msg.Value, &mapOffers); err != nil {
+			log.Error().Err(err).Msg("Message unmarshal error")
+		}
+
+		offers := utils.ConvertOffersMapStringToSlice(mapOffers)
+
+		log.Info().
+			Uint16("__type", uint16(msg.Type)).
+			Interface("offers", offers).
+			Msg("Message received")
+
+		if _, err := r.MultiCreateOffer(ctx, offers); err != nil {
+			log.Error().Err(err).Send()
+		}
+
+		return
+	}
+
 	var offer models.Offer
 	if err := mapstructure.Decode(msg.Value, &offer); err != nil {
 		log.Error().Err(err).Msg("Message unmarshal error")
@@ -137,8 +168,6 @@ func messageReceived(m *sarama.ConsumerMessage, r repo.IRepository) {
 		Uint16("__type", uint16(msg.Type)).
 		Interface("offer", offer).
 		Msg("Message received")
-
-	ctx := context.Background()
 
 	switch msg.Type {
 	case producer.TypeCreateOffer:

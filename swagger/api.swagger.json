@@ -281,6 +281,39 @@
         ]
       }
     },
+    "/v1/task/offers/multi": {
+      "post": {
+        "summary": "TaskMultiCreateOfferV1 - Multiple offer creation",
+        "operationId": "OcpOfferApiService_TaskMultiCreateOfferV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiTaskMultiCreateOfferV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiTaskMultiCreateOfferV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "OcpOfferApiService"
+        ]
+      }
+    },
     "/v1/task/offers/{id}": {
       "delete": {
         "summary": "TaskRemoveOfferV1 - Removes offer",
@@ -491,6 +524,26 @@
     "apiTaskCreateOfferV1Response": {
       "type": "object",
       "description": "TaskCreateOfferV1Response ..."
+    },
+    "apiTaskMultiCreateOfferV1Request": {
+      "type": "object",
+      "properties": {
+        "offers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiCreateOfferV1Request"
+          }
+        },
+        "batch_size": {
+          "type": "string",
+          "format": "uint64"
+        }
+      },
+      "description": "TaskMultiCreateOfferV1Request ..."
+    },
+    "apiTaskMultiCreateOfferV1Response": {
+      "type": "object",
+      "description": "TaskMultiCreateOfferV1Response ..."
     },
     "apiTaskRemoveOfferV1Response": {
       "type": "object",

@@ -1,9 +1,14 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "api/ocp-offer-api/ocp-offer-api.proto",
+    "title": "ozoncp/ocp-offer-api/v1/ocp-offer-api.proto",
     "version": "version not set"
   },
+  "tags": [
+    {
+      "name": "OcpOfferApiService"
+    }
+  ],
   "consumes": [
     "application/json"
   ],
@@ -19,13 +24,13 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiListOfferV1Response"
+              "$ref": "#/definitions/v1ListOfferV1Response"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/runtimeError"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
@@ -66,13 +71,13 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiCreateOfferV1Response"
+              "$ref": "#/definitions/v1CreateOfferV1Response"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/runtimeError"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
@@ -82,7 +87,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/apiCreateOfferV1Request"
+              "$ref": "#/definitions/v1CreateOfferV1Request"
             }
           }
         ],
@@ -97,13 +102,13 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiUpdateOfferV1Response"
+              "$ref": "#/definitions/v1UpdateOfferV1Response"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/runtimeError"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
@@ -113,7 +118,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/apiUpdateOfferV1Request"
+              "$ref": "#/definitions/v1UpdateOfferV1Request"
             }
           }
         ],
@@ -130,13 +135,13 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiMultiCreateOfferV1Response"
+              "$ref": "#/definitions/v1MultiCreateOfferV1Response"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/runtimeError"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
@@ -146,7 +151,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/apiMultiCreateOfferV1Request"
+              "$ref": "#/definitions/v1MultiCreateOfferV1Request"
             }
           }
         ],
@@ -163,13 +168,13 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiDescribeOfferV1Response"
+              "$ref": "#/definitions/v1DescribeOfferV1Response"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/runtimeError"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
@@ -193,13 +198,13 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiRemoveOfferV1Response"
+              "$ref": "#/definitions/v1RemoveOfferV1Response"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/runtimeError"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
@@ -225,13 +230,13 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiTaskCreateOfferV1Response"
+              "$ref": "#/definitions/v1TaskCreateOfferV1Response"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/runtimeError"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
@@ -241,7 +246,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/apiTaskCreateOfferV1Request"
+              "$ref": "#/definitions/v1TaskCreateOfferV1Request"
             }
           }
         ],
@@ -256,13 +261,13 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiTaskUpdateOfferV1Response"
+              "$ref": "#/definitions/v1TaskUpdateOfferV1Response"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/runtimeError"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
@@ -272,7 +277,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/apiTaskUpdateOfferV1Request"
+              "$ref": "#/definitions/v1TaskUpdateOfferV1Request"
             }
           }
         ],
@@ -289,13 +294,13 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiTaskMultiCreateOfferV1Response"
+              "$ref": "#/definitions/v1TaskMultiCreateOfferV1Response"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/runtimeError"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
@@ -305,7 +310,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/apiTaskMultiCreateOfferV1Request"
+              "$ref": "#/definitions/v1TaskMultiCreateOfferV1Request"
             }
           }
         ],
@@ -322,13 +327,13 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiTaskRemoveOfferV1Response"
+              "$ref": "#/definitions/v1TaskRemoveOfferV1Response"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/runtimeError"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
@@ -348,10 +353,40 @@
     }
   },
   "definitions": {
-    "apiCreateOfferV1Request": {
+    "protobufAny": {
       "type": "object",
       "properties": {
-        "user_id": {
+        "typeUrl": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1CreateOfferV1Request": {
+      "type": "object",
+      "properties": {
+        "userId": {
           "type": "string",
           "format": "uint64"
         },
@@ -359,14 +394,14 @@
           "type": "string",
           "format": "uint64"
         },
-        "team_id": {
+        "teamId": {
           "type": "string",
           "format": "uint64"
         }
       },
       "title": "CreateOfferV1Request - create offer. Fields are validated"
     },
-    "apiCreateOfferV1Response": {
+    "v1CreateOfferV1Response": {
       "type": "object",
       "properties": {
         "id": {
@@ -376,43 +411,43 @@
       },
       "description": "CreateOfferV1Response ..."
     },
-    "apiDescribeOfferV1Response": {
+    "v1DescribeOfferV1Response": {
       "type": "object",
       "properties": {
         "offer": {
-          "$ref": "#/definitions/apiOffer"
+          "$ref": "#/definitions/v1Offer"
         }
       },
       "description": "DescribeOfferV1Response ..."
     },
-    "apiListOfferV1Response": {
+    "v1ListOfferV1Response": {
       "type": "object",
       "properties": {
         "pagination": {
-          "$ref": "#/definitions/apiPaginationInfo"
+          "$ref": "#/definitions/v1PaginationInfo"
         },
         "offers": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/apiOffer"
+            "$ref": "#/definitions/v1Offer"
           }
         }
       },
       "description": "ListOfferV1Response ..."
     },
-    "apiMultiCreateOfferV1Request": {
+    "v1MultiCreateOfferV1Request": {
       "type": "object",
       "properties": {
         "offers": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/apiCreateOfferV1Request"
+            "$ref": "#/definitions/v1CreateOfferV1Request"
           }
         }
       },
       "description": "MultiCreateOfferV1Request ..."
     },
-    "apiMultiCreateOfferV1Response": {
+    "v1MultiCreateOfferV1Response": {
       "type": "object",
       "properties": {
         "count": {
@@ -422,14 +457,14 @@
       },
       "description": "MultiCreateOfferV1Response ..."
     },
-    "apiOffer": {
+    "v1Offer": {
       "type": "object",
       "properties": {
         "id": {
           "type": "string",
           "format": "uint64"
         },
-        "user_id": {
+        "userId": {
           "type": "string",
           "format": "uint64"
         },
@@ -437,14 +472,14 @@
           "type": "string",
           "format": "uint64"
         },
-        "team_id": {
+        "teamId": {
           "type": "string",
           "format": "uint64"
         }
       },
       "description": "Offer ..."
     },
-    "apiPaginationInfo": {
+    "v1PaginationInfo": {
       "type": "object",
       "properties": {
         "page": {
@@ -452,33 +487,33 @@
           "format": "uint64",
           "title": "Current page number"
         },
-        "total_pages": {
+        "totalPages": {
           "type": "string",
           "format": "uint64",
           "title": "Total pages"
         },
-        "total_items": {
+        "totalItems": {
           "type": "string",
           "format": "uint64",
           "title": "Total items"
         },
-        "per_page": {
+        "perPage": {
           "type": "integer",
           "format": "int64",
           "title": "Items per page - max 10k"
         },
-        "has_next_page": {
+        "hasNextPage": {
           "type": "boolean",
           "title": "Has next page"
         },
-        "has_previous_page": {
+        "hasPreviousPage": {
           "type": "boolean",
           "title": "Has previous page"
         }
       },
       "title": "PaginationInfo - Contains information about the current state of pagination"
     },
-    "apiPaginationInput": {
+    "v1PaginationInput": {
       "type": "object",
       "properties": {
         "cursor": {
@@ -499,14 +534,14 @@
       },
       "title": "PaginationInput Offset pagination uses skip and take to skip a certain number\nof results and select a limited range. Fields are validated"
     },
-    "apiRemoveOfferV1Response": {
+    "v1RemoveOfferV1Response": {
       "type": "object",
       "description": "RemoveOfferV1Response ..."
     },
-    "apiTaskCreateOfferV1Request": {
+    "v1TaskCreateOfferV1Request": {
       "type": "object",
       "properties": {
-        "user_id": {
+        "userId": {
           "type": "string",
           "format": "uint64"
         },
@@ -514,49 +549,49 @@
           "type": "string",
           "format": "uint64"
         },
-        "team_id": {
+        "teamId": {
           "type": "string",
           "format": "uint64"
         }
       },
       "title": "TaskCreateOfferV1Request - create offer. Fields are validated"
     },
-    "apiTaskCreateOfferV1Response": {
+    "v1TaskCreateOfferV1Response": {
       "type": "object",
       "description": "TaskCreateOfferV1Response ..."
     },
-    "apiTaskMultiCreateOfferV1Request": {
+    "v1TaskMultiCreateOfferV1Request": {
       "type": "object",
       "properties": {
         "offers": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/apiCreateOfferV1Request"
+            "$ref": "#/definitions/v1CreateOfferV1Request"
           }
         },
-        "batch_size": {
+        "batchSize": {
           "type": "string",
           "format": "uint64"
         }
       },
       "description": "TaskMultiCreateOfferV1Request ..."
     },
-    "apiTaskMultiCreateOfferV1Response": {
+    "v1TaskMultiCreateOfferV1Response": {
       "type": "object",
       "description": "TaskMultiCreateOfferV1Response ..."
     },
-    "apiTaskRemoveOfferV1Response": {
+    "v1TaskRemoveOfferV1Response": {
       "type": "object",
       "description": "TaskRemoveOfferV1Response ..."
     },
-    "apiTaskUpdateOfferV1Request": {
+    "v1TaskUpdateOfferV1Request": {
       "type": "object",
       "properties": {
         "id": {
           "type": "string",
           "format": "uint64"
         },
-        "user_id": {
+        "userId": {
           "type": "string",
           "format": "uint64"
         },
@@ -564,25 +599,25 @@
           "type": "string",
           "format": "uint64"
         },
-        "team_id": {
+        "teamId": {
           "type": "string",
           "format": "uint64"
         }
       },
       "title": "TaskUpdateOfferV1Request - update offer `by` id, fields are validated"
     },
-    "apiTaskUpdateOfferV1Response": {
+    "v1TaskUpdateOfferV1Response": {
       "type": "object",
       "description": "TaskUpdateOfferV1Response ..."
     },
-    "apiUpdateOfferV1Request": {
+    "v1UpdateOfferV1Request": {
       "type": "object",
       "properties": {
         "id": {
           "type": "string",
           "format": "uint64"
         },
-        "user_id": {
+        "userId": {
           "type": "string",
           "format": "uint64"
         },
@@ -590,49 +625,16 @@
           "type": "string",
           "format": "uint64"
         },
-        "team_id": {
+        "teamId": {
           "type": "string",
           "format": "uint64"
         }
       },
       "title": "UpdateOfferV1Request - update offer `by` id, fields are validated"
     },
-    "apiUpdateOfferV1Response": {
+    "v1UpdateOfferV1Response": {
       "type": "object",
       "description": "UpdateOfferV1Response ..."
-    },
-    "protobufAny": {
-      "type": "object",
-      "properties": {
-        "type_url": {
-          "type": "string"
-        },
-        "value": {
-          "type": "string",
-          "format": "byte"
-        }
-      }
-    },
-    "runtimeError": {
-      "type": "object",
-      "properties": {
-        "error": {
-          "type": "string"
-        },
-        "code": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "message": {
-          "type": "string"
-        },
-        "details": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/protobufAny"
-          }
-        }
-      }
     }
   }
 }

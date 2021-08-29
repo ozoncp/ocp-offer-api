@@ -50,7 +50,7 @@ func NewOcpOfferApiServiceClient(cc grpc.ClientConnInterface) OcpOfferApiService
 
 func (c *ocpOfferApiServiceClient) CreateOfferV1(ctx context.Context, in *CreateOfferV1Request, opts ...grpc.CallOption) (*CreateOfferV1Response, error) {
 	out := new(CreateOfferV1Response)
-	err := c.cc.Invoke(ctx, "/ocp.offer.api.OcpOfferApiService/CreateOfferV1", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/CreateOfferV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (c *ocpOfferApiServiceClient) CreateOfferV1(ctx context.Context, in *Create
 
 func (c *ocpOfferApiServiceClient) TaskCreateOfferV1(ctx context.Context, in *TaskCreateOfferV1Request, opts ...grpc.CallOption) (*TaskCreateOfferV1Response, error) {
 	out := new(TaskCreateOfferV1Response)
-	err := c.cc.Invoke(ctx, "/ocp.offer.api.OcpOfferApiService/TaskCreateOfferV1", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/TaskCreateOfferV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (c *ocpOfferApiServiceClient) TaskCreateOfferV1(ctx context.Context, in *Ta
 
 func (c *ocpOfferApiServiceClient) MultiCreateOfferV1(ctx context.Context, in *MultiCreateOfferV1Request, opts ...grpc.CallOption) (*MultiCreateOfferV1Response, error) {
 	out := new(MultiCreateOfferV1Response)
-	err := c.cc.Invoke(ctx, "/ocp.offer.api.OcpOfferApiService/MultiCreateOfferV1", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/MultiCreateOfferV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (c *ocpOfferApiServiceClient) MultiCreateOfferV1(ctx context.Context, in *M
 
 func (c *ocpOfferApiServiceClient) TaskMultiCreateOfferV1(ctx context.Context, in *TaskMultiCreateOfferV1Request, opts ...grpc.CallOption) (*TaskMultiCreateOfferV1Response, error) {
 	out := new(TaskMultiCreateOfferV1Response)
-	err := c.cc.Invoke(ctx, "/ocp.offer.api.OcpOfferApiService/TaskMultiCreateOfferV1", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/TaskMultiCreateOfferV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func (c *ocpOfferApiServiceClient) TaskMultiCreateOfferV1(ctx context.Context, i
 
 func (c *ocpOfferApiServiceClient) DescribeOfferV1(ctx context.Context, in *DescribeOfferV1Request, opts ...grpc.CallOption) (*DescribeOfferV1Response, error) {
 	out := new(DescribeOfferV1Response)
-	err := c.cc.Invoke(ctx, "/ocp.offer.api.OcpOfferApiService/DescribeOfferV1", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/DescribeOfferV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func (c *ocpOfferApiServiceClient) DescribeOfferV1(ctx context.Context, in *Desc
 
 func (c *ocpOfferApiServiceClient) ListOfferV1(ctx context.Context, in *ListOfferV1Request, opts ...grpc.CallOption) (*ListOfferV1Response, error) {
 	out := new(ListOfferV1Response)
-	err := c.cc.Invoke(ctx, "/ocp.offer.api.OcpOfferApiService/ListOfferV1", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/ListOfferV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +104,7 @@ func (c *ocpOfferApiServiceClient) ListOfferV1(ctx context.Context, in *ListOffe
 
 func (c *ocpOfferApiServiceClient) UpdateOfferV1(ctx context.Context, in *UpdateOfferV1Request, opts ...grpc.CallOption) (*UpdateOfferV1Response, error) {
 	out := new(UpdateOfferV1Response)
-	err := c.cc.Invoke(ctx, "/ocp.offer.api.OcpOfferApiService/UpdateOfferV1", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/UpdateOfferV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func (c *ocpOfferApiServiceClient) UpdateOfferV1(ctx context.Context, in *Update
 
 func (c *ocpOfferApiServiceClient) TaskUpdateOfferV1(ctx context.Context, in *TaskUpdateOfferV1Request, opts ...grpc.CallOption) (*TaskUpdateOfferV1Response, error) {
 	out := new(TaskUpdateOfferV1Response)
-	err := c.cc.Invoke(ctx, "/ocp.offer.api.OcpOfferApiService/TaskUpdateOfferV1", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/TaskUpdateOfferV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func (c *ocpOfferApiServiceClient) TaskUpdateOfferV1(ctx context.Context, in *Ta
 
 func (c *ocpOfferApiServiceClient) RemoveOfferV1(ctx context.Context, in *RemoveOfferV1Request, opts ...grpc.CallOption) (*RemoveOfferV1Response, error) {
 	out := new(RemoveOfferV1Response)
-	err := c.cc.Invoke(ctx, "/ocp.offer.api.OcpOfferApiService/RemoveOfferV1", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/RemoveOfferV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +131,7 @@ func (c *ocpOfferApiServiceClient) RemoveOfferV1(ctx context.Context, in *Remove
 
 func (c *ocpOfferApiServiceClient) TaskRemoveOfferV1(ctx context.Context, in *TaskRemoveOfferV1Request, opts ...grpc.CallOption) (*TaskRemoveOfferV1Response, error) {
 	out := new(TaskRemoveOfferV1Response)
-	err := c.cc.Invoke(ctx, "/ocp.offer.api.OcpOfferApiService/TaskRemoveOfferV1", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/TaskRemoveOfferV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -222,7 +222,7 @@ func _OcpOfferApiService_CreateOfferV1_Handler(srv interface{}, ctx context.Cont
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ocp.offer.api.OcpOfferApiService/CreateOfferV1",
+		FullMethod: "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/CreateOfferV1",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OcpOfferApiServiceServer).CreateOfferV1(ctx, req.(*CreateOfferV1Request))
@@ -240,7 +240,7 @@ func _OcpOfferApiService_TaskCreateOfferV1_Handler(srv interface{}, ctx context.
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ocp.offer.api.OcpOfferApiService/TaskCreateOfferV1",
+		FullMethod: "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/TaskCreateOfferV1",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OcpOfferApiServiceServer).TaskCreateOfferV1(ctx, req.(*TaskCreateOfferV1Request))
@@ -258,7 +258,7 @@ func _OcpOfferApiService_MultiCreateOfferV1_Handler(srv interface{}, ctx context
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ocp.offer.api.OcpOfferApiService/MultiCreateOfferV1",
+		FullMethod: "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/MultiCreateOfferV1",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OcpOfferApiServiceServer).MultiCreateOfferV1(ctx, req.(*MultiCreateOfferV1Request))
@@ -276,7 +276,7 @@ func _OcpOfferApiService_TaskMultiCreateOfferV1_Handler(srv interface{}, ctx con
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ocp.offer.api.OcpOfferApiService/TaskMultiCreateOfferV1",
+		FullMethod: "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/TaskMultiCreateOfferV1",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OcpOfferApiServiceServer).TaskMultiCreateOfferV1(ctx, req.(*TaskMultiCreateOfferV1Request))
@@ -294,7 +294,7 @@ func _OcpOfferApiService_DescribeOfferV1_Handler(srv interface{}, ctx context.Co
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ocp.offer.api.OcpOfferApiService/DescribeOfferV1",
+		FullMethod: "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/DescribeOfferV1",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OcpOfferApiServiceServer).DescribeOfferV1(ctx, req.(*DescribeOfferV1Request))
@@ -312,7 +312,7 @@ func _OcpOfferApiService_ListOfferV1_Handler(srv interface{}, ctx context.Contex
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ocp.offer.api.OcpOfferApiService/ListOfferV1",
+		FullMethod: "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/ListOfferV1",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OcpOfferApiServiceServer).ListOfferV1(ctx, req.(*ListOfferV1Request))
@@ -330,7 +330,7 @@ func _OcpOfferApiService_UpdateOfferV1_Handler(srv interface{}, ctx context.Cont
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ocp.offer.api.OcpOfferApiService/UpdateOfferV1",
+		FullMethod: "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/UpdateOfferV1",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OcpOfferApiServiceServer).UpdateOfferV1(ctx, req.(*UpdateOfferV1Request))
@@ -348,7 +348,7 @@ func _OcpOfferApiService_TaskUpdateOfferV1_Handler(srv interface{}, ctx context.
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ocp.offer.api.OcpOfferApiService/TaskUpdateOfferV1",
+		FullMethod: "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/TaskUpdateOfferV1",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OcpOfferApiServiceServer).TaskUpdateOfferV1(ctx, req.(*TaskUpdateOfferV1Request))
@@ -366,7 +366,7 @@ func _OcpOfferApiService_RemoveOfferV1_Handler(srv interface{}, ctx context.Cont
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ocp.offer.api.OcpOfferApiService/RemoveOfferV1",
+		FullMethod: "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/RemoveOfferV1",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OcpOfferApiServiceServer).RemoveOfferV1(ctx, req.(*RemoveOfferV1Request))
@@ -384,7 +384,7 @@ func _OcpOfferApiService_TaskRemoveOfferV1_Handler(srv interface{}, ctx context.
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ocp.offer.api.OcpOfferApiService/TaskRemoveOfferV1",
+		FullMethod: "/ozoncp.ocp_offer_api.v1.OcpOfferApiService/TaskRemoveOfferV1",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OcpOfferApiServiceServer).TaskRemoveOfferV1(ctx, req.(*TaskRemoveOfferV1Request))
@@ -396,7 +396,7 @@ func _OcpOfferApiService_TaskRemoveOfferV1_Handler(srv interface{}, ctx context.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var OcpOfferApiService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "ocp.offer.api.OcpOfferApiService",
+	ServiceName: "ozoncp.ocp_offer_api.v1.OcpOfferApiService",
 	HandlerType: (*OcpOfferApiServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -441,5 +441,5 @@ var OcpOfferApiService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/ocp-offer-api/ocp-offer-api.proto",
+	Metadata: "ozoncp/ocp-offer-api/v1/ocp-offer-api.proto",
 }

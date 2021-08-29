@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-package ocp.offer.api;
+package ozoncp.ocp_offer_api.v1;
 
-import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
 import "google/api/annotations.proto";
+import "validate/validate.proto";
 
 option go_package = "github.com/ozoncp/ocp-offer-api/pkg/ocp-offer-api;ocp_offer_api";
 

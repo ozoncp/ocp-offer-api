@@ -2,7 +2,7 @@
 
 FROM golang:1.16-alpine AS builder
 
-RUN apk add --update make git protoc protobuf protobuf-dev
+RUN apk add --update make git protoc protobuf protobuf-dev curl
 
 COPY . /home/github.com/ozoncp/ocp-offer-api
 
@@ -20,7 +20,7 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
 COPY --from=builder /home/github.com/ozoncp/ocp-offer-api/bin/grpc-server .
-COPY --from=builder /home/github.com/ozoncp/ocp-offer-api/migrations/ .
+COPY --from=builder /home/github.com/ozoncp/ocp-offer-api/migrations/ ./migrations
 
 RUN chown root:root grpc-server
 
@@ -28,7 +28,7 @@ EXPOSE 50051
 EXPOSE 8080
 EXPOSE 9100
 
-CMD ["./grpc-server"]
+CMD ["./grpc-server", "--migration", "up"]
 
 
 # Kafka consumer

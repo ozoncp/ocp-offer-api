@@ -1,0 +1,20 @@
+version: v1
+plugins:
+  - name: go
+    out: .
+    opt: module=github.com/ozoncp/ocp-offer-api
+  - name: go
+    out: .
+    opt: module=github.com/ozoncp/ocp-offer-api
+  - name: go-grpc
+    out: .
+    opt: module=github.com/ozoncp/ocp-offer-api
+  - name: grpc-gateway
+    out: .
+    opt: logtostderr=true,module=github.com/ozoncp/ocp-offer-api
+  - name: validate
+    out: .
+    opt: lang=go,module=github.com/ozoncp/ocp-offer-api
+  - name: openapiv2
+    out: swagger
+    opt: allow_merge=true,merge_file_name=api

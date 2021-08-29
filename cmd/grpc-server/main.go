@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+	"flag"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -13,6 +15,7 @@ import (
 	cfg "github.com/ozoncp/ocp-offer-api/internal/config"
 	"github.com/ozoncp/ocp-offer-api/internal/server"
 	"github.com/ozoncp/ocp-offer-api/internal/tracer"
+	"github.com/pressly/goose/v3"
 )
 
 var (
@@ -20,6 +23,9 @@ var (
 )
 
 func main() {
+	migration := flag.String("migration", "", "Defines the migration start option")
+	flag.Parse()
+
 	log.Info().
 		Str("version", cfg.Project.Version).
 		Bool("debug", cfg.Project.Debug).
@@ -28,6 +34,10 @@ func main() {
 
 	db := createDB()
 
+	if *migration != "" {
+		migrate(db.DB, *migration)
+	}
+
 	tracer.InitTracing("ocp_offer_api")
 
 	if err := server.NewGrpcServer(db, batchSize).Start(); err != nil {
@@ -35,6 +45,22 @@ func main() {
 	}
 
 	db.Close()
+}
+
+func migrate(db *sql.DB, command string) {
+	switch command {
+	case "up":
+		if err := goose.Up(db, "migrations"); err != nil {
+			log.Fatal().Err(err).Msg("Migration failed")
+		}
+	case "down":
+		if err := goose.Down(db, "migrations"); err != nil {
+			log.Fatal().Err(err).Msg("Migration failed")
+		}
+
+	default:
+		log.Warn().Msgf("Invalid command for 'migration' flag: '%v'", command)
+	}
 }
 
 func createDB() *sqlx.DB {

@@ -67,8 +67,8 @@ build: generate .build
 
 .PHONY: .build
 .build:
-		go mod download && CGO_ENABLED=0 GOOS=linux go build -o ./bin/ocp-offer-api ./cmd/grpc-server/main.go
-		go mod download && CGO_ENABLED=0 GOOS=linux go build -o ./bin/kafka-consumer ./cmd/kafka-consumer/main.go
+		go mod download && CGO_ENABLED=0 GOOS=linux go build -tags='no_mysql no_sqlite3' -o ./bin/grpc-server ./cmd/grpc-server/main.go
+		go mod download && CGO_ENABLED=0 GOOS=linux go build -tags='no_mysql no_sqlite3' -o ./bin/kafka-consumer ./cmd/kafka-consumer/main.go
 
 
 .PHONY: install

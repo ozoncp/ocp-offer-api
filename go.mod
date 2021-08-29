@@ -7,7 +7,6 @@ require (
 	github.com/Masterminds/squirrel v1.5.0
 	github.com/Shopify/sarama v1.29.1
 	github.com/fatih/structs v1.1.0
-	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/golang/mock v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
@@ -15,12 +14,12 @@ require (
 	github.com/jackc/pgx/v4 v4.13.0
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/lib/pq v1.10.2
-	github.com/mattn/go-sqlite3 v1.14.8 // indirect
 	github.com/mitchellh/mapstructure v1.4.1
 	github.com/onsi/ginkgo v1.16.4
 	github.com/onsi/gomega v1.15.0
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/ozoncp/ocp-offer-api/pkg/ocp-offer-api v0.0.0-00010101000000-000000000000
+	github.com/pressly/goose/v3 v3.1.0
 	github.com/prometheus/client_golang v1.11.0
 	github.com/rs/zerolog v1.23.0
 	github.com/stretchr/testify v1.7.0

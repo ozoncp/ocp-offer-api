@@ -1,4 +1,4 @@
-package producer
+package service
 
 import (
 	"context"
@@ -40,7 +40,7 @@ type Message struct {
 	Value map[string]interface{}
 }
 
-func New(ctx context.Context, brokers []string, topicName string, capacity uint64) (IProducer, error) {
+func NewProducer(ctx context.Context, brokers []string, topicName string, capacity uint64) (IProducer, error) {
 	config := sarama.NewConfig()
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	config.Producer.RequiredAcks = sarama.WaitForAll

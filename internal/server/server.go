@@ -26,8 +26,8 @@ import (
 	"github.com/ozoncp/ocp-offer-api/internal/api"
 	cfg "github.com/ozoncp/ocp-offer-api/internal/config"
 	"github.com/ozoncp/ocp-offer-api/internal/interceptors"
-	"github.com/ozoncp/ocp-offer-api/internal/producer"
 	"github.com/ozoncp/ocp-offer-api/internal/repo"
+	"github.com/ozoncp/ocp-offer-api/internal/service"
 	pb "github.com/ozoncp/ocp-offer-api/pkg/ocp-offer-api"
 )
 
@@ -107,7 +107,7 @@ func (s *GrpcServer) Start() error {
 		)),
 	)
 
-	p, err := producer.New(ctx, cfg.Kafka.Brokers, cfg.Kafka.Topic, cfg.Kafka.Capacity)
+	p, err := service.NewProducer(ctx, cfg.Kafka.Brokers, cfg.Kafka.Topic, cfg.Kafka.Capacity)
 	if err != nil {
 		return fmt.Errorf("failed to create a producer: %w", err)
 	}
@@ -115,6 +115,7 @@ func (s *GrpcServer) Start() error {
 	r := repo.NewRepo(s.db, s.batchSize)
 
 	pb.RegisterOcpOfferApiServiceServer(grpcServer, api.NewOfferAPI(r, p))
+	grpc_prometheus.EnableHandlingTimeHistogram()
 	grpc_prometheus.Register(grpcServer)
 
 	go func() {

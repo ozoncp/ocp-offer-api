@@ -18,27 +18,13 @@
       }
     ]
   },
+  "description": "https://github.com/grpc-ecosystem/go-grpc-prometheus",
   "editable": true,
   "gnetId": 9186,
   "graphTooltip": 0,
-  "id": 4,
-  "iteration": 1630308964820,
+  "iteration": 1630316926329,
   "links": [],
   "panels": [
-    {
-      "collapsed": false,
-      "datasource": null,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 22,
-      "panels": [],
-      "title": "Global",
-      "type": "row"
-    },
     {
       "cacheTimeout": null,
       "datasource": "Prometheus",
@@ -95,9 +81,9 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 8,
+        "w": 5,
         "x": 0,
-        "y": 1
+        "y": 0
       },
       "id": 15,
       "interval": null,
@@ -172,9 +158,9 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 8,
-        "x": 8,
-        "y": 1
+        "w": 5,
+        "x": 5,
+        "y": 0
       },
       "id": 12,
       "interval": null,
@@ -205,6 +191,72 @@
         }
       ],
       "title": "Global Success Rate",
+      "type": "stat"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 30
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 10,
+        "y": 0
+      },
+      "id": 38,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum(rate(grpc_server_handled_total{job=\"$job\",grpc_type=\"unary\",grpc_code!=\"OK\"}[$interval])) by (grpc_service)\n / \nsum(rate(grpc_server_started_total{job=\"$job\",grpc_type=\"unary\"}[$interval])) by (grpc_service)\n * 100.0",
+          "interval": "",
+          "legendFormat": "",
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Unary request error percentage",
       "type": "stat"
     },
     {
@@ -246,9 +298,9 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 8,
-        "x": 16,
-        "y": 1
+        "w": 5,
+        "x": 14,
+        "y": 0
       },
       "id": 14,
       "interval": null,
@@ -272,14 +324,94 @@
       "pluginVersion": "8.1.2",
       "targets": [
         {
+          "exemplar": true,
           "expr": "sum(irate(grpc_server_started_total{job=\"$job\"}[$interval]))",
           "format": "time_series",
+          "interval": "",
           "intervalFactor": 1,
+          "legendFormat": "",
           "refId": "A"
         }
       ],
       "title": "QPS",
       "type": "stat"
+    },
+    {
+      "datasource": "Prometheus",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 100
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 5,
+        "x": 19,
+        "y": 0
+      },
+      "id": 36,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.1.2",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "increase(grpc_microservice_requests_total[$interval])",
+          "interval": "",
+          "legendFormat": "",
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Total gRPC requests",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 22,
+      "panels": [],
+      "title": "Global",
+      "type": "row"
     },
     {
       "aliasColors": {},
@@ -763,8 +895,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "exemplar": true,
           "expr": "sum(rate(grpc_server_handled_total{job=\"$job\",grpc_type=\"unary\"}[$interval])) by (grpc_code)",
           "format": "time_series",
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "{{grpc_code}}",
           "refId": "A"
@@ -790,6 +924,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:461",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -798,6 +933,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:462",
           "format": "Bps",
           "label": null,
           "logBase": 1,
@@ -856,10 +992,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(irate(grpc_server_started_total{job=\"$job\"}[$interval])) by (grpc_service)",
+          "exemplar": true,
+          "expr": "sum(irate(grpc_server_started_total{job=\"$job\"}[$interval])) by (grpc_service, grpc_method)",
           "format": "time_series",
+          "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{grpc_service}}",
+          "legendFormat": "{{grpc_service}} {{grpc_method}}",
           "refId": "A"
         }
       ],
@@ -883,6 +1021,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:374",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -891,6 +1030,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:375",
           "format": "ops",
           "label": null,
           "logBase": 1,
@@ -976,6 +1116,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:283",
           "format": "ms",
           "label": null,
           "logBase": 1,
@@ -984,6 +1125,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:284",
           "format": "none",
           "label": null,
           "logBase": 1,
@@ -1058,8 +1200,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "exemplar": true,
           "expr": "sum(rate(grpc_server_handled_total{job=\"$job\",grpc_code!=\"OK\",grpc_service=~\"$grpc_service\"}[$interval])) by (grpc_method)",
           "format": "time_series",
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "{{grpc_method}}",
           "refId": "A"
@@ -1085,6 +1229,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:188",
           "format": "decbytes",
           "label": null,
           "logBase": 1,
@@ -1093,6 +1238,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:189",
           "format": "Bps",
           "label": null,
           "logBase": 1,
@@ -1151,8 +1297,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(grpc_server_handled_total{job=\"$job\",grpc_code!=\"OK\",grpc_service=~\"$grpc_service\"}[$interval])) by (grpc_method)\n/ \nsum(rate(grpc_server_started_total{job=\"$job\",grpc_service=~\"$grpc_service\"}[$interval])) by (grpc_method)",
+          "exemplar": true,
+          "expr": "sum(rate(grpc_server_handled_total{job=\"$job\",grpc_code!=\"OK\",grpc_service=~\"$grpc_service\"}[$interval])) by (grpc_method)\n/ \nsum(rate(grpc_server_started_total{job=\"$job\",grpc_service=~\"$grpc_service\"}[$interval])) by (grpc_method) * 100.0",
           "format": "time_series",
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "{{grpc_method}}",
           "refId": "A"
@@ -1178,6 +1326,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:275",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -1186,6 +1335,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:276",
           "format": "percentunit",
           "label": null,
           "logBase": 1,
@@ -1364,6 +1514,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:362",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -1372,6 +1523,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:363",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -1389,7 +1541,11 @@
   "refresh": "5s",
   "schemaVersion": 30,
   "style": "dark",
-  "tags": [],
+  "tags": [
+    "offer",
+    "api",
+    "ocp-offer-api"
+  ],
   "templating": {
     "list": [
       {
@@ -1494,6 +1650,7 @@
           }
         ],
         "query": "1m,5m,10m,30m,1h,6h,12h,1d,7d,14d,30d",
+        "queryValue": "",
         "refresh": 2,
         "skipUrlSync": false,
         "type": "interval"
@@ -1545,6 +1702,7 @@
           }
         ],
         "query": "\"0.1\",\"0.15\",\"0.25\",\"0.3\",\"0.5\",\"1\"",
+        "queryValue": "",
         "refresh": 2,
         "skipUrlSync": false,
         "type": "interval"
@@ -1552,9 +1710,13 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": "Prometheus",
         "definition": "",
@@ -1582,7 +1744,7 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {
@@ -1613,5 +1775,5 @@
   "timezone": "",
   "title": "Ozon Code Platform | Offer API",
   "uid": "DrxMsp4nz",
-  "version": 2
+  "version": 1
 }

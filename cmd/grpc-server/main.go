@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
 
 	_ "github.com/jackc/pgx/v4"
@@ -13,6 +12,7 @@ import (
 	_ "github.com/lib/pq"
 
 	cfg "github.com/ozoncp/ocp-offer-api/internal/config"
+	"github.com/ozoncp/ocp-offer-api/internal/database"
 	"github.com/ozoncp/ocp-offer-api/internal/server"
 	"github.com/ozoncp/ocp-offer-api/internal/tracer"
 	"github.com/pressly/goose/v3"
@@ -32,7 +32,16 @@ func main() {
 		Str("environment", cfg.Project.Environment).
 		Msgf("Starting service: %s", cfg.Project.Name)
 
-	db := createDB()
+	dsn := fmt.Sprintf("host=%v port=%v user=%v password=%v dbname=%v sslmode=%v",
+		cfg.Database.Host,
+		cfg.Database.Port,
+		cfg.Database.User,
+		cfg.Database.Password,
+		cfg.Database.Name,
+		cfg.Database.SSLMode,
+	)
+
+	db := database.NewPostgres(dsn, cfg.Database.Driver)
 
 	if *migration != "" {
 		migrate(db.DB, *migration)
@@ -61,30 +70,4 @@ func migrate(db *sql.DB, command string) {
 	default:
 		log.Warn().Msgf("Invalid command for 'migration' flag: '%v'", command)
 	}
-}
-
-func createDB() *sqlx.DB {
-	dataSourceName := fmt.Sprintf("host=%v port=%v user=%v password=%v dbname=%v sslmode=%v",
-		cfg.Database.Host,
-		cfg.Database.Port,
-		cfg.Database.User,
-		cfg.Database.Password,
-		cfg.Database.Name,
-		cfg.Database.SSLMode,
-	)
-
-	db, err := sqlx.Open(cfg.Database.Driver, dataSourceName)
-	if err != nil {
-		log.Fatal().Err(err).Msgf("failed to create database connection")
-
-		return nil
-	}
-
-	if err = db.Ping(); err != nil {
-		log.Fatal().Err(err).Msgf("failed ping the database")
-
-		return nil
-	}
-
-	return db
 }

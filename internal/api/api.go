@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/ozoncp/ocp-offer-api/internal/models"
-	"github.com/ozoncp/ocp-offer-api/internal/producer"
 	"github.com/ozoncp/ocp-offer-api/internal/repo"
+	"github.com/ozoncp/ocp-offer-api/internal/service"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/rs/zerolog/log"
@@ -33,10 +33,10 @@ var (
 type offerAPI struct {
 	pb.UnimplementedOcpOfferApiServiceServer
 	repo     repo.IRepository
-	producer producer.IProducer
+	producer service.IProducer
 }
 
-func NewOfferAPI(r repo.IRepository, p producer.IProducer) pb.OcpOfferApiServiceServer {
+func NewOfferAPI(r repo.IRepository, p service.IProducer) pb.OcpOfferApiServiceServer {
 	return &offerAPI{repo: r, producer: p}
 }
 

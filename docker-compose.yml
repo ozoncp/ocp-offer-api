@@ -69,6 +69,26 @@ services:
     volumes:
       - './prometheus.yml:/etc/prometheus/prometheus.yml'
 
+  grafana:
+    image: grafana/grafana
+    logging:
+      driver: 'gelf'
+      options:
+        gelf-address: 'udp://localhost:12201'
+        tag: ocp-offer-grafana
+    user: '472'
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./grafana:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+    links:
+      - prometheus
+
   jaeger:
     image: jaegertracing/all-in-one:latest
     logging:

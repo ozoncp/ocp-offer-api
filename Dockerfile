@@ -2,6 +2,8 @@
 
 FROM golang:1.16-alpine AS builder
 
+ARG VERSION COMMIT_HASH
+
 RUN apk add --update make git protoc protobuf protobuf-dev curl
 
 COPY . /home/github.com/ozoncp/ocp-offer-api

@@ -28,6 +28,7 @@ func main() {
 
 	log.Info().
 		Str("version", cfg.Project.Version).
+		Str("commitHash", cfg.Project.CommitHash).
 		Bool("debug", cfg.Project.Debug).
 		Str("environment", cfg.Project.Environment).
 		Msgf("Starting service: %s", cfg.Project.Name)

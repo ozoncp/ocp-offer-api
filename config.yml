@@ -1,6 +1,5 @@
 project:
   name: Ozon Code Platform Offer API
-  version: v0.8.1
   debug: true
   environment: development
 
@@ -25,6 +24,7 @@ status:
   port: 8000
   livenessPath: /live
   readinessPath: /ready
+  versionPath: /version
 
 database:
   host: database

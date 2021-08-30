@@ -14,6 +14,12 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// Build information -ldflags .
+var (
+	version    string = "dev"
+	commitHash string = "-"
+)
+
 var cfg *config
 
 var (
@@ -41,8 +47,9 @@ type config struct {
 type project struct {
 	Debug       bool   `yaml:"debug"`
 	Name        string `yaml:"name"`
-	Version     string `yaml:"version"`
 	Environment string `yaml:"environment"`
+	Version     string
+	CommitHash  string
 }
 
 // gRPC config.
@@ -89,8 +96,9 @@ type kafka struct {
 type status struct {
 	Port          int    `yaml:"port" env:"STATUS_PORT"`
 	Host          string `yaml:"host" env:"STATUS_HOST"`
-	LivenessPath  string `yaml:"livenessPath" env:"LIVENESS_PATH"`
-	ReadinessPath string `yaml:"readinessPath" env:"READINESS_PATH"`
+	VersionPath   string `yaml:"versionPath" env:"STATUS_VERSION_PATH"`
+	LivenessPath  string `yaml:"livenessPath" env:"STATUS_LIVENESS_PATH"`
+	ReadinessPath string `yaml:"readinessPath" env:"STATUS_READINESS_PATH"`
 }
 
 var fileConfig = "config.yml"
@@ -142,6 +150,9 @@ func UpdateConfig() error {
 
 	// Set global value
 	Project = &cfg.Project
+	Project.Version = version
+	Project.CommitHash = commitHash
+
 	GRPC = &cfg.GRPC
 	Gateway = &cfg.Gateway
 	Metrics = &cfg.Metrics

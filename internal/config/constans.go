@@ -20,6 +20,7 @@ const (
 	// Status environment constants.
 	StatusHost          = "STATUS_HOST"
 	StatusPort          = "STATUS_PORT"
+	StatusVersionPath   = "STATUS_VERSION_PATH"
 	StatusLivenessPath  = "STATUS_LIVENESS_PATH"
 	StatusReadinessPath = "STATUS_READINESS_PATH"
 

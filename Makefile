@@ -17,7 +17,6 @@ grpc-server:
 kafka-consumer:
 	go run cmd/kafka-consumer/main.go
 
-
 .PHONY: lint
 lint:
 	golangci-lint run ./...
@@ -65,5 +64,17 @@ deps: .deps .bin-deps
 
 .PHONY: build
 build: generate
-	go mod download && CGO_ENABLED=0 GOOS=linux go build -tags='no_mysql no_sqlite3' -o ./bin/grpc-server ./cmd/grpc-server/main.go
-	go mod download && CGO_ENABLED=0 GOOS=linux go build -tags='no_mysql no_sqlite3' -o ./bin/kafka-consumer ./cmd/kafka-consumer/main.go
+		go mod download && CGO_ENABLED=0  go build \
+			-tags='no_mysql no_sqlite3' \
+			-ldflags=" \
+				-X 'github.com/ozoncp/ocp-offer-api/internal/config.version=$(VERSION)' \
+				-X 'github.com/ozoncp/ocp-offer-api/internal/config.commitHash=$(COMMIT_HASH)' \
+			" \
+			-o ./bin/grpc-server ./cmd/grpc-server/main.go
+		go mod download && CGO_ENABLED=0 GOOS=linux go build \
+			-tags='no_mysql no_sqlite3' \
+			-ldflags=" \
+				-X 'github.com/ozoncp/ocp-offer-api/internal/config.version=$(VERSION)' \
+				-X 'github.com/ozoncp/ocp-offer-api/internal/config.commitHash=$(COMMIT_HASH)' \
+			" \
+			-o ./bin/kafka-consumer ./cmd/kafka-consumer/main.go

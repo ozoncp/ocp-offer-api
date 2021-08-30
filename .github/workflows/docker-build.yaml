@@ -1,8 +1,7 @@
 on:
-  pull_request:
-    types: [closed]
-    branches:
-      - main
+  push:
+    tags:
+      - "*"
 
 name: Docker Image CI
 
@@ -12,9 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME: docker.pkg.github.com/${{ github.repository }}
-      IMAGE_TAG: ${{ github.sha }}
+      COMMIT_HASH: ${{ github.sha }}
 
     steps:
+      - name: Set env version
+        run: echo "VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
       - name: Git Checkout PR Ref
         if: github.event.action != 'closed'
         uses: actions/checkout@v1
@@ -53,7 +55,7 @@ jobs:
             --cache-from $IMAGE_NAME/builder:latest \
             --cache-from $IMAGE_NAME/grpc-server:latest \
             --target server \
-            -t $IMAGE_NAME/grpc-server:$IMAGE_TAG \
+            -t $IMAGE_NAME/grpc-server:$VERSION \
             -t $IMAGE_NAME/grpc-server:latest \
             .
 
@@ -61,7 +63,7 @@ jobs:
             --cache-from $IMAGE_NAME/builder:latest \
             --cache-from $IMAGE_NAME/kafka-consumer:latest \
             --target consumer \
-            -t $IMAGE_NAME/kafka-consumer:$IMAGE_TAG \
+            -t $IMAGE_NAME/kafka-consumer:$VERSION \
             -t $IMAGE_NAME/kafka-consumer:latest \
             .
 
@@ -69,9 +71,9 @@ jobs:
         run: |
           docker push $IMAGE_NAME/builder:latest
           docker push $IMAGE_NAME/grpc-server:latest
-          docker push $IMAGE_NAME/grpc-server:$IMAGE_TAG
+          docker push $IMAGE_NAME/grpc-server:$VERSION
           docker push $IMAGE_NAME/kafka-consumer:latest
-          docker push $IMAGE_NAME/kafka-consumer:$IMAGE_TAG
+          docker push $IMAGE_NAME/kafka-consumer:$VERSION
 
       - name: Logout
         run: |

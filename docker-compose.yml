@@ -63,9 +63,9 @@ services:
     ports:
       - '9090:9090'
     depends_on:
-      - app
+      - server
     links:
-      - app
+      - server
     volumes:
       - './prometheus.yml:/etc/prometheus/prometheus.yml'
 
@@ -163,6 +163,7 @@ services:
       - '50051:50051' # gRPC
       - '8080:8080' # Gateway
       - '9100:9100' # Metrics prometheus
+      - '8000:8000' # Status prometheus
     logging:
       driver: 'gelf'
       options:

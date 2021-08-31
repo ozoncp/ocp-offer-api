@@ -178,9 +178,7 @@ services:
       - 12201:12201/udp
 
   server:
-    build:
-      context: .
-      target: server
+    image: docker.pkg.github.com/ozoncp/ocp-offer-api/grpc-server:1.0.0-beta.2
     restart: unless-stopped
     ports:
       - '50051:50051' # gRPC
@@ -208,9 +206,7 @@ services:
       - './config.yml:/root/config.yml'
 
   consumer:
-    build:
-      context: .
-      target: consumer
+    image: docker.pkg.github.com/ozoncp/ocp-offer-api/kafka-consumer:1.0.0-beta.2
     restart: unless-stopped
     logging:
       driver: 'gelf'

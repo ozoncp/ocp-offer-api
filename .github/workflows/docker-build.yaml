@@ -47,22 +47,28 @@ jobs:
         run: |
           DOCKER_BUILDKIT=1 && docker build \
             --target builder \
+            --build-arg VERSION=$VERSION \
+            --build-arg COMMIT_HASH=$COMMIT_HASH \
             --cache-from $IMAGE_NAME/builder:latest \
             -t $IMAGE_NAME/builder \
             .
 
           DOCKER_BUILDKIT=1 && docker build \
+            --target server \
+            --build-arg VERSION=$VERSION \
+            --build-arg COMMIT_HASH=$COMMIT_HASH \
             --cache-from $IMAGE_NAME/builder:latest \
             --cache-from $IMAGE_NAME/grpc-server:latest \
-            --target server \
             -t $IMAGE_NAME/grpc-server:$VERSION \
             -t $IMAGE_NAME/grpc-server:latest \
             .
 
           DOCKER_BUILDKIT=1 && docker build \
+            --target consumer \
+            --build-arg VERSION=$VERSION \
+            --build-arg COMMIT_HASH=$COMMIT_HASH \
             --cache-from $IMAGE_NAME/builder:latest \
             --cache-from $IMAGE_NAME/kafka-consumer:latest \
-            --target consumer \
             -t $IMAGE_NAME/kafka-consumer:$VERSION \
             -t $IMAGE_NAME/kafka-consumer:latest \
             .

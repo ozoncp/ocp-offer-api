@@ -1,6 +1,5 @@
 project:
   name: Ozon Code Platform Offer API
-  version: v0.8.0
   debug: true
   environment: development
 
@@ -20,6 +19,13 @@ metrics:
   port: 9100
   path: /metrics
 
+status:
+  host: 0.0.0.0
+  port: 8000
+  livenessPath: /live
+  readinessPath: /ready
+  versionPath: /version
+
 database:
   host: database
   port: 5432
@@ -33,4 +39,6 @@ kafka:
   topic: "ocp-offer-api"
   brokers:
     - "kafka:9092"
+    - "localhost:9094"
   capacity: 512
+  groupId: "example"

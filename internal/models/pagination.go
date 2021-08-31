@@ -18,8 +18,8 @@ type PaginationInput struct {
 	Skip uint64
 }
 
+// Get pagination information.
 func (p *PaginationInput) GetPaginationInfo(perPage uint32, totalItems uint64) *PaginationInfo {
-
 	totalPages := uint64(math.Ceil(float64(totalItems) / float64(p.Take)))
 	page := uint64(math.Ceil(float64(p.Skip)/float64(p.Take) + 1))
 

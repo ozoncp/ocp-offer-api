@@ -1,9 +1,14 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "api/ocp-offer-api/ocp-offer-api.proto",
+    "title": "ozoncp/ocp-offer-api/v1/ocp-offer-api.proto",
     "version": "version not set"
   },
+  "tags": [
+    {
+      "name": "OcpOfferApiService"
+    }
+  ],
   "consumes": [
     "application/json"
   ],
@@ -19,19 +24,20 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiListOfferV1Response"
+              "$ref": "#/definitions/v1ListOfferV1Response"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/runtimeError"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
         "parameters": [
           {
             "name": "pagination.cursor",
+            "description": "Deprecated: Cursor-based pagination uses cursor and take to return a\nlimited set of results before or after a given cursor.",
             "in": "query",
             "required": false,
             "type": "string",
@@ -65,13 +71,13 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiCreateOfferV1Response"
+              "$ref": "#/definitions/v1CreateOfferV1Response"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/runtimeError"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
@@ -81,7 +87,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/apiCreateOfferV1Request"
+              "$ref": "#/definitions/v1CreateOfferV1Request"
             }
           }
         ],
@@ -96,13 +102,13 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiUpdateOfferV1Response"
+              "$ref": "#/definitions/v1UpdateOfferV1Response"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/runtimeError"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
@@ -112,7 +118,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/apiUpdateOfferV1Request"
+              "$ref": "#/definitions/v1UpdateOfferV1Request"
             }
           }
         ],
@@ -129,13 +135,13 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiMultiCreateOfferV1Response"
+              "$ref": "#/definitions/v1MultiCreateOfferV1Response"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/runtimeError"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
@@ -145,7 +151,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/apiMultiCreateOfferV1Request"
+              "$ref": "#/definitions/v1MultiCreateOfferV1Request"
             }
           }
         ],
@@ -154,7 +160,7 @@
         ]
       }
     },
-    "/v1/offers/{offer_id}": {
+    "/v1/offers/{id}": {
       "get": {
         "summary": "DescribeOfferV1 - Get information about the offer",
         "operationId": "OcpOfferApiService_DescribeOfferV1",
@@ -162,19 +168,19 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiDescribeOfferV1Response"
+              "$ref": "#/definitions/v1DescribeOfferV1Response"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/runtimeError"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
         "parameters": [
           {
-            "name": "offer_id",
+            "name": "id",
             "in": "path",
             "required": true,
             "type": "string",
@@ -192,19 +198,148 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiRemoveOfferV1Response"
+              "$ref": "#/definitions/v1RemoveOfferV1Response"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/runtimeError"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
         "parameters": [
           {
-            "name": "offer_id",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "OcpOfferApiService"
+        ]
+      }
+    },
+    "/v1/task/offers": {
+      "post": {
+        "summary": "TaskCreateOfferV1 - Create an offer",
+        "operationId": "OcpOfferApiService_TaskCreateOfferV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1TaskCreateOfferV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1TaskCreateOfferV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "OcpOfferApiService"
+        ]
+      },
+      "put": {
+        "summary": "TaskUpdateOfferV1 - Updates the offer",
+        "operationId": "OcpOfferApiService_TaskUpdateOfferV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1TaskUpdateOfferV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1TaskUpdateOfferV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "OcpOfferApiService"
+        ]
+      }
+    },
+    "/v1/task/offers/multi": {
+      "post": {
+        "summary": "TaskMultiCreateOfferV1 - Multiple offer creation",
+        "operationId": "OcpOfferApiService_TaskMultiCreateOfferV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1TaskMultiCreateOfferV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1TaskMultiCreateOfferV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "OcpOfferApiService"
+        ]
+      }
+    },
+    "/v1/task/offers/{id}": {
+      "delete": {
+        "summary": "TaskRemoveOfferV1 - Removes offer",
+        "operationId": "OcpOfferApiService_TaskRemoveOfferV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1TaskRemoveOfferV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
             "in": "path",
             "required": true,
             "type": "string",
@@ -218,190 +353,10 @@
     }
   },
   "definitions": {
-    "apiCreateOfferV1Request": {
-      "type": "object",
-      "properties": {
-        "user_id": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "grade": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "team_id": {
-          "type": "string",
-          "format": "uint64"
-        }
-      },
-      "description": "CreateOfferV1Request ..."
-    },
-    "apiCreateOfferV1Response": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uint64"
-        }
-      },
-      "description": "CreateOfferV1Response ..."
-    },
-    "apiDescribeOfferV1Response": {
-      "type": "object",
-      "properties": {
-        "offer": {
-          "$ref": "#/definitions/apiOffer"
-        }
-      },
-      "description": "DescribeOfferV1Response ..."
-    },
-    "apiListOfferV1Response": {
-      "type": "object",
-      "properties": {
-        "pagination": {
-          "$ref": "#/definitions/apiPaginationInfo"
-        },
-        "offers": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/apiOffer"
-          }
-        }
-      },
-      "description": "ListOfferV1Response ..."
-    },
-    "apiMultiCreateOfferV1Request": {
-      "type": "object",
-      "properties": {
-        "offers": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/apiCreateOfferV1Request"
-          }
-        }
-      },
-      "description": "MultiCreateOfferV1Request ..."
-    },
-    "apiMultiCreateOfferV1Response": {
-      "type": "object",
-      "properties": {
-        "count": {
-          "type": "string",
-          "format": "uint64"
-        }
-      },
-      "description": "MultiCreateOfferV1Response ..."
-    },
-    "apiOffer": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "user_id": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "grade": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "team_id": {
-          "type": "string",
-          "format": "uint64"
-        }
-      },
-      "description": "Offer ..."
-    },
-    "apiPaginationInfo": {
-      "type": "object",
-      "properties": {
-        "page": {
-          "type": "string",
-          "format": "uint64",
-          "title": "Current page number"
-        },
-        "total_pages": {
-          "type": "string",
-          "format": "uint64",
-          "title": "Total pages"
-        },
-        "total_items": {
-          "type": "string",
-          "format": "uint64",
-          "title": "Total items"
-        },
-        "per_page": {
-          "type": "integer",
-          "format": "int64",
-          "title": "Items per page - max 10k"
-        },
-        "has_next_page": {
-          "type": "boolean",
-          "title": "Has next page"
-        },
-        "has_previous_page": {
-          "type": "boolean",
-          "title": "Has previous page"
-        }
-      },
-      "title": "PaginationInfo - Contains information about the current state of pagination"
-    },
-    "apiPaginationInput": {
-      "type": "object",
-      "properties": {
-        "cursor": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "take": {
-          "type": "integer",
-          "format": "int64",
-          "title": "Number of items per page"
-        },
-        "skip": {
-          "type": "string",
-          "format": "uint64",
-          "title": "The number of skipped elements, when using the cursor, the counting starts\nfrom the specified id"
-        }
-      },
-      "title": "PaginationInput Offset pagination uses skip and take to skip a certain number\nof results and select a limited range"
-    },
-    "apiRemoveOfferV1Response": {
-      "type": "object",
-      "description": "RemoveOfferV1Response ..."
-    },
-    "apiUpdateOfferV1Request": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "user_id": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "grade": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "team_id": {
-          "type": "string",
-          "format": "uint64"
-        }
-      },
-      "description": "UpdateOfferV1Request ..."
-    },
-    "apiUpdateOfferV1Response": {
-      "type": "object",
-      "description": "UpdateOfferV1Response ..."
-    },
     "protobufAny": {
       "type": "object",
       "properties": {
-        "type_url": {
+        "typeUrl": {
           "type": "string"
         },
         "value": {
@@ -410,12 +365,9 @@
         }
       }
     },
-    "runtimeError": {
+    "rpcStatus": {
       "type": "object",
       "properties": {
-        "error": {
-          "type": "string"
-        },
         "code": {
           "type": "integer",
           "format": "int32"
@@ -430,6 +382,259 @@
           }
         }
       }
+    },
+    "v1CreateOfferV1Request": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "grade": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "teamId": {
+          "type": "string",
+          "format": "uint64"
+        }
+      },
+      "title": "CreateOfferV1Request - create offer. Fields are validated"
+    },
+    "v1CreateOfferV1Response": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        }
+      },
+      "description": "CreateOfferV1Response ..."
+    },
+    "v1DescribeOfferV1Response": {
+      "type": "object",
+      "properties": {
+        "offer": {
+          "$ref": "#/definitions/v1Offer"
+        }
+      },
+      "description": "DescribeOfferV1Response ..."
+    },
+    "v1ListOfferV1Response": {
+      "type": "object",
+      "properties": {
+        "pagination": {
+          "$ref": "#/definitions/v1PaginationInfo"
+        },
+        "offers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Offer"
+          }
+        }
+      },
+      "description": "ListOfferV1Response ..."
+    },
+    "v1MultiCreateOfferV1Request": {
+      "type": "object",
+      "properties": {
+        "offers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1CreateOfferV1Request"
+          }
+        }
+      },
+      "description": "MultiCreateOfferV1Request ..."
+    },
+    "v1MultiCreateOfferV1Response": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "string",
+          "format": "uint64"
+        }
+      },
+      "description": "MultiCreateOfferV1Response ..."
+    },
+    "v1Offer": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "userId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "grade": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "teamId": {
+          "type": "string",
+          "format": "uint64"
+        }
+      },
+      "description": "Offer ..."
+    },
+    "v1PaginationInfo": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "string",
+          "format": "uint64",
+          "title": "Current page number"
+        },
+        "totalPages": {
+          "type": "string",
+          "format": "uint64",
+          "title": "Total pages"
+        },
+        "totalItems": {
+          "type": "string",
+          "format": "uint64",
+          "title": "Total items"
+        },
+        "perPage": {
+          "type": "integer",
+          "format": "int64",
+          "title": "Items per page - max 10k"
+        },
+        "hasNextPage": {
+          "type": "boolean",
+          "title": "Has next page"
+        },
+        "hasPreviousPage": {
+          "type": "boolean",
+          "title": "Has previous page"
+        }
+      },
+      "title": "PaginationInfo - Contains information about the current state of pagination"
+    },
+    "v1PaginationInput": {
+      "type": "object",
+      "properties": {
+        "cursor": {
+          "type": "string",
+          "format": "uint64",
+          "title": "Deprecated: Cursor-based pagination uses cursor and take to return a\nlimited set of results before or after a given cursor"
+        },
+        "take": {
+          "type": "integer",
+          "format": "int64",
+          "title": "Number of items per page"
+        },
+        "skip": {
+          "type": "string",
+          "format": "uint64",
+          "title": "The number of skipped elements, when using the cursor, the counting starts\nfrom the specified id"
+        }
+      },
+      "title": "PaginationInput Offset pagination uses skip and take to skip a certain number\nof results and select a limited range. Fields are validated"
+    },
+    "v1RemoveOfferV1Response": {
+      "type": "object",
+      "description": "RemoveOfferV1Response ..."
+    },
+    "v1TaskCreateOfferV1Request": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "grade": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "teamId": {
+          "type": "string",
+          "format": "uint64"
+        }
+      },
+      "title": "TaskCreateOfferV1Request - create offer. Fields are validated"
+    },
+    "v1TaskCreateOfferV1Response": {
+      "type": "object",
+      "description": "TaskCreateOfferV1Response ..."
+    },
+    "v1TaskMultiCreateOfferV1Request": {
+      "type": "object",
+      "properties": {
+        "offers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1CreateOfferV1Request"
+          }
+        },
+        "batchSize": {
+          "type": "string",
+          "format": "uint64"
+        }
+      },
+      "description": "TaskMultiCreateOfferV1Request ..."
+    },
+    "v1TaskMultiCreateOfferV1Response": {
+      "type": "object",
+      "description": "TaskMultiCreateOfferV1Response ..."
+    },
+    "v1TaskRemoveOfferV1Response": {
+      "type": "object",
+      "description": "TaskRemoveOfferV1Response ..."
+    },
+    "v1TaskUpdateOfferV1Request": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "userId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "grade": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "teamId": {
+          "type": "string",
+          "format": "uint64"
+        }
+      },
+      "title": "TaskUpdateOfferV1Request - update offer `by` id, fields are validated"
+    },
+    "v1TaskUpdateOfferV1Response": {
+      "type": "object",
+      "description": "TaskUpdateOfferV1Response ..."
+    },
+    "v1UpdateOfferV1Request": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "userId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "grade": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "teamId": {
+          "type": "string",
+          "format": "uint64"
+        }
+      },
+      "title": "UpdateOfferV1Request - update offer `by` id, fields are validated"
+    },
+    "v1UpdateOfferV1Response": {
+      "type": "object",
+      "description": "UpdateOfferV1Response ..."
     }
   }
 }

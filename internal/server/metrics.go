@@ -8,7 +8,6 @@ import (
 )
 
 func createMetricsServer(addr string) *http.Server {
-
 	mux := http.DefaultServeMux
 	mux.Handle(cfg.Metrics.Path, promhttp.Handler())
 

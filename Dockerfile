@@ -1,47 +1,48 @@
-FROM ubuntu AS builder
+# Builder
 
-RUN apt update -y
-RUN apt upgrade -y
+FROM golang:1.16-alpine AS builder
 
-RUN apt install -y locales
-RUN apt install -y sudo
+ARG VERSION COMMIT_HASH
 
-RUN echo "LC_ALL=en_US.UTF-8" >> /etc/environment && \
-    echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
-    echo "LANG=en_US.UTF-8" > /etc/locale.conf && \
-    locale-gen en_US.UTF-8
+RUN apk add --update make git protoc protobuf protobuf-dev curl
 
-RUN useradd -m -G sudo developer
-RUN echo 'developer:developer' | chpasswd
-USER developer
+COPY . /home/github.com/ozoncp/ocp-offer-api
 
-RUN echo developer | sudo -S DEBIAN_FRONTEND="noninteractive" apt install -y golang
-RUN echo developer | sudo -S apt install -y ca-certificates && sudo update-ca-certificates
-RUN echo developer | sudo -S apt install -y make git vim protobuf-compiler
-
-ENV GOPATH /home/developer/go
-ENV PATH $PATH:/home/developer/go/bin
-
-COPY . /home/developer/go/src/github.com/ozoncp/ocp-offer-api
-RUN echo developer | sudo -S chown -R developer /home/developer/
-
-WORKDIR /home/developer/go/src/github.com/ozoncp/ocp-offer-api
+WORKDIR /home/github.com/ozoncp/ocp-offer-api
 
 RUN make deps && make build
 
-#
-FROM alpine:latest
+
+# gRPC Server
+
+FROM alpine:latest as server
 
 RUN apk --no-cache add ca-certificates
 
 WORKDIR /root/
 
-COPY --from=builder /home/developer/go/src/github.com/ozoncp/ocp-offer-api/bin/ocp-offer-api .
+COPY --from=builder /home/github.com/ozoncp/ocp-offer-api/bin/grpc-server .
+COPY --from=builder /home/github.com/ozoncp/ocp-offer-api/migrations/ ./migrations
 
-RUN chown root:root ocp-offer-api
+RUN chown root:root grpc-server
 
 EXPOSE 50051
 EXPOSE 8080
 EXPOSE 9100
 
-CMD ["./ocp-offer-api"]
+CMD ["./grpc-server", "--migration", "up"]
+
+
+# Kafka consumer
+
+FROM alpine:latest as consumer
+
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /root/
+
+COPY --from=builder /home/github.com/ozoncp/ocp-offer-api/bin/kafka-consumer .
+
+RUN chown root:root kafka-consumer
+
+CMD ["./kafka-consumer"]

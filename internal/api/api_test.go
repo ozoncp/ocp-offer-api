@@ -27,7 +27,7 @@ var _ = Describe("OcpOfferApiService", func() {
 		bufSize   = 1024 * 1024
 		ctrl      *gomock.Controller
 		mRepo     *mocks.MockIRepository
-		mProducer *mocks.MockProducer
+		mProducer *mocks.MockIProducer
 		ctx       context.Context
 		conn      *grpc.ClientConn
 		client    pb.OcpOfferApiServiceClient
@@ -37,7 +37,7 @@ var _ = Describe("OcpOfferApiService", func() {
 	BeforeSuite(func() {
 		ctrl = gomock.NewController(GinkgoT())
 		mRepo = mocks.NewMockIRepository(ctrl)
-		mProducer = mocks.NewMockProducer(ctrl)
+		mProducer = mocks.NewMockIProducer(ctrl)
 
 		listener = bufconn.Listen(bufSize)
 		server := grpc.NewServer()
@@ -55,9 +55,6 @@ var _ = Describe("OcpOfferApiService", func() {
 			server.Stop()
 		}()
 
-		mProducer.EXPECT().
-			Send(gomock.Any()).
-			Return(nil)
 	})
 
 	AfterSuite(func() {
@@ -130,7 +127,7 @@ var _ = Describe("OcpOfferApiService", func() {
 					DescribeOffer(gomock.Any(), gomock.Any()).
 					Times(0)
 
-				req := &pb.DescribeOfferV1Request{OfferId: 0}
+				req := &pb.DescribeOfferV1Request{Id: 0}
 				res, err := client.DescribeOfferV1(ctx, req)
 
 				Expect(res).Should(BeNil())
@@ -145,7 +142,7 @@ var _ = Describe("OcpOfferApiService", func() {
 					Times(1).
 					Return(nil, errors.New(""))
 
-				req := &pb.DescribeOfferV1Request{OfferId: 1}
+				req := &pb.DescribeOfferV1Request{Id: 1}
 				res, err := client.DescribeOfferV1(ctx, req)
 
 				Expect(res).Should(BeNil())
@@ -160,13 +157,13 @@ var _ = Describe("OcpOfferApiService", func() {
 					DescribeOffer(gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(&models.Offer{
-						Id:     1,
-						UserId: 2,
+						ID:     1,
+						UserID: 2,
 						Grade:  3,
-						TeamId: 4,
+						TeamID: 4,
 					}, nil)
 
-				req := &pb.DescribeOfferV1Request{OfferId: 1}
+				req := &pb.DescribeOfferV1Request{Id: 1}
 				res, err := client.DescribeOfferV1(ctx, req)
 
 				Expect(res).ShouldNot(BeNil())
@@ -329,7 +326,7 @@ var _ = Describe("OcpOfferApiService", func() {
 					Times(0)
 
 				req := &pb.RemoveOfferV1Request{
-					OfferId: 0,
+					Id: 0,
 				}
 
 				res, err := client.RemoveOfferV1(ctx, req)
@@ -346,7 +343,7 @@ var _ = Describe("OcpOfferApiService", func() {
 					Times(1).
 					Return(errors.New(""))
 
-				req := &pb.RemoveOfferV1Request{OfferId: 1}
+				req := &pb.RemoveOfferV1Request{Id: 1}
 				res, err := client.RemoveOfferV1(ctx, req)
 
 				Expect(res).Should(BeNil())
@@ -362,7 +359,7 @@ var _ = Describe("OcpOfferApiService", func() {
 					Times(1).
 					Return(nil)
 
-				req := &pb.RemoveOfferV1Request{OfferId: 1}
+				req := &pb.RemoveOfferV1Request{Id: 1}
 				res, err := client.RemoveOfferV1(ctx, req)
 
 				Expect(&res).ShouldNot(BeNil())

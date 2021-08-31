@@ -2,11 +2,10 @@ package api
 
 import (
 	"context"
-	"time"
 
 	"github.com/ozoncp/ocp-offer-api/internal/models"
-	"github.com/ozoncp/ocp-offer-api/internal/producer"
 	"github.com/ozoncp/ocp-offer-api/internal/repo"
+	"github.com/ozoncp/ocp-offer-api/internal/service"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/rs/zerolog/log"
@@ -18,59 +17,56 @@ import (
 
 var (
 	totalSuccessCreated = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "ocp_offer_api_total_success_created",
+		Name: "ocp_offer_api_success_created_total",
 		Help: "Total number of requests for offers successfully created",
 	})
 	totalSuccessUpdated = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "ocp_offer_api_total_success_updated",
+		Name: "ocp_offer_api_success_updated_total",
 		Help: "Total number of requests for offers successfully updated",
 	})
 	totalSuccessDeleted = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "ocp_offer_api_total_success_deleted",
+		Name: "ocp_offer_api_success_deleted_total",
 		Help: "Total number of requests for offers successfully deleted",
 	})
 )
 
 type offerAPI struct {
 	pb.UnimplementedOcpOfferApiServiceServer
-	repo         repo.IRepository
-	dataProducer producer.Producer
+	repo     repo.IRepository
+	producer service.IProducer
 }
 
-func NewOfferAPI(r repo.IRepository, p producer.Producer) pb.OcpOfferApiServiceServer {
-	return &offerAPI{repo: r, dataProducer: p}
+func NewOfferAPI(r repo.IRepository, p service.IProducer) pb.OcpOfferApiServiceServer {
+	return &offerAPI{repo: r, producer: p}
 }
 
 func (o *offerAPI) CreateOfferV1(ctx context.Context, req *pb.CreateOfferV1Request) (*pb.CreateOfferV1Response, error) {
 	if err := req.Validate(); err != nil {
 		log.Error().Err(err).Msg("CreateOfferV1 - invalid argument")
+
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	offer := models.Offer{
-		UserId: req.UserId,
+		UserID: req.UserId,
 		Grade:  req.Grade,
-		TeamId: req.TeamId,
+		TeamID: req.TeamId,
 	}
 
-	offerId, err := o.repo.CreateOffer(ctx, offer)
+	offerID, err := o.repo.CreateOffer(ctx, offer)
+
 	if err != nil {
 		log.Error().Err(err).Msg("CreateOfferV1 -- failed")
+
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	message := producer.CreateMessage(producer.Create, offerId, time.Now())
-
-	err = o.dataProducer.Send(message)
-	if err != nil {
-		log.Error().Err(err).Msg("CreateOfferV1 - failed to send message to kafka")
-	}
-
 	totalSuccessCreated.Inc()
+
 	log.Debug().Msg("CreateOfferV1 - success")
 
 	return &pb.CreateOfferV1Response{
-		Id: offerId,
+		Id: offerID,
 	}, nil
 }
 
@@ -79,6 +75,7 @@ func (o *offerAPI) CreateOfferV1(ctx context.Context, req *pb.CreateOfferV1Reque
 func (o *offerAPI) MultiCreateOfferV1(ctx context.Context, req *pb.MultiCreateOfferV1Request) (*pb.MultiCreateOfferV1Response, error) {
 	if err := req.Validate(); err != nil {
 		log.Error().Err(err).Msg("MultiCreateOfferV1 - invalid argument")
+
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
@@ -86,8 +83,8 @@ func (o *offerAPI) MultiCreateOfferV1(ctx context.Context, req *pb.MultiCreateOf
 
 	for i, offer := range req.Offers {
 		offers[i] = models.Offer{
-			UserId: offer.UserId,
-			TeamId: offer.TeamId,
+			UserID: offer.UserId,
+			TeamID: offer.TeamId,
 			Grade:  offer.Grade,
 		}
 	}
@@ -95,6 +92,7 @@ func (o *offerAPI) MultiCreateOfferV1(ctx context.Context, req *pb.MultiCreateOf
 	count, err := o.repo.MultiCreateOffer(ctx, offers)
 	if err != nil {
 		log.Error().Err(err).Msg("MultiCreateOfferV1 -- failed")
+
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -110,12 +108,14 @@ func (o *offerAPI) MultiCreateOfferV1(ctx context.Context, req *pb.MultiCreateOf
 func (o *offerAPI) DescribeOfferV1(ctx context.Context, req *pb.DescribeOfferV1Request) (*pb.DescribeOfferV1Response, error) {
 	if err := req.Validate(); err != nil {
 		log.Error().Err(err).Msg("DescribeOfferV1 - invalid argument")
+
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	offer, err := o.repo.DescribeOffer(ctx, req.OfferId)
+	offer, err := o.repo.DescribeOffer(ctx, req.Id)
 	if err != nil {
 		log.Error().Err(err).Msg("DescribeOfferV1 -- failed")
+
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -123,10 +123,10 @@ func (o *offerAPI) DescribeOfferV1(ctx context.Context, req *pb.DescribeOfferV1R
 
 	return &pb.DescribeOfferV1Response{
 		Offer: &pb.Offer{
-			Id:     offer.Id,
-			UserId: offer.UserId,
+			Id:     offer.ID,
+			UserId: offer.UserID,
 			Grade:  offer.Grade,
-			TeamId: offer.TeamId,
+			TeamId: offer.TeamID,
 		},
 	}, nil
 }
@@ -136,6 +136,7 @@ func (o *offerAPI) DescribeOfferV1(ctx context.Context, req *pb.DescribeOfferV1R
 func (o *offerAPI) ListOfferV1(ctx context.Context, req *pb.ListOfferV1Request) (*pb.ListOfferV1Response, error) {
 	if err := req.Validate(); err != nil {
 		log.Error().Err(err).Msg("ListOfferV1 - invalid argument")
+
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
@@ -145,6 +146,7 @@ func (o *offerAPI) ListOfferV1(ctx context.Context, req *pb.ListOfferV1Request) 
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("ListOfferV1 -- failed")
+
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -152,10 +154,10 @@ func (o *offerAPI) ListOfferV1(ctx context.Context, req *pb.ListOfferV1Request) 
 
 	for i, val := range repoOffers {
 		offers[i] = &pb.Offer{
-			Id:     val.Id,
-			UserId: val.UserId,
+			Id:     val.ID,
+			UserId: val.UserID,
 			Grade:  val.Grade,
-			TeamId: val.TeamId,
+			TeamId: val.TeamID,
 		}
 	}
 
@@ -179,41 +181,141 @@ func (o *offerAPI) ListOfferV1(ctx context.Context, req *pb.ListOfferV1Request) 
 func (o *offerAPI) UpdateOfferV1(ctx context.Context, req *pb.UpdateOfferV1Request) (*pb.UpdateOfferV1Response, error) {
 	if err := req.Validate(); err != nil {
 		log.Error().Err(err).Msg("UpdateOfferV1 - invalid argument")
+
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	data := models.Offer{
-		Id:     req.Id,
-		UserId: req.UserId,
+		ID:     req.Id,
+		UserID: req.UserId,
 		Grade:  req.Grade,
-		TeamId: req.TeamId,
+		TeamID: req.TeamId,
 	}
 
 	if err := o.repo.UpdateOffer(ctx, data); err != nil {
 		log.Error().Err(err).Msg("UpdateOfferV1 -- failed")
+
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	totalSuccessUpdated.Inc()
+
 	log.Debug().Msg("UpdateOfferV1 - success")
 
 	return &pb.UpdateOfferV1Response{}, nil
 }
 
-func (o *offerAPI) RemoveOfferV1(ctx context.Context, req *pb.RemoveOfferV1Request) (*pb.RemoveOfferV1Response, error) {
+// ----------------------------------------------------------------
 
+func (o *offerAPI) RemoveOfferV1(ctx context.Context, req *pb.RemoveOfferV1Request) (*pb.RemoveOfferV1Response, error) {
 	if err := req.Validate(); err != nil {
 		log.Error().Err(err).Msg("RemoveOfferV1 - invalid argument")
+
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if err := o.repo.RemoveOffer(ctx, req.OfferId); err != nil {
+	if err := o.repo.RemoveOffer(ctx, req.Id); err != nil {
 		log.Error().Err(err).Msg("RemoveOfferV1 -- failed")
+
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	totalSuccessDeleted.Inc()
+
 	log.Debug().Msg("RemoveOfferV1 - success")
 
 	return &pb.RemoveOfferV1Response{}, nil
+}
+
+// ----------------------------------------------------------------
+
+func (o *offerAPI) TaskCreateOfferV1(ctx context.Context, req *pb.TaskCreateOfferV1Request) (*pb.TaskCreateOfferV1Response, error) {
+	if err := req.Validate(); err != nil {
+		log.Error().Err(err).Msg("TaskCreateOfferV1 - invalid argument")
+
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	offer := models.Offer{
+		UserID: req.UserId,
+		Grade:  req.Grade,
+		TeamID: req.TeamId,
+	}
+
+	if err := o.producer.CreateOffer(offer); err != nil {
+		log.Error().Err(err).Msg("TaskCreateOfferV1 -- failed")
+
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &pb.TaskCreateOfferV1Response{}, nil
+}
+
+// ----------------------------------------------------------------
+
+func (o *offerAPI) TaskMultiCreateOfferV1(ctx context.Context, req *pb.TaskMultiCreateOfferV1Request) (*pb.TaskMultiCreateOfferV1Response, error) {
+	if err := req.Validate(); err != nil {
+		log.Error().Err(err).Msg("TaskMultiCreateOfferV1 - invalid argument")
+
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	offers := make([]models.Offer, len(req.Offers))
+
+	for i, offer := range req.Offers {
+		offers[i] = models.Offer{
+			UserID: offer.UserId,
+			TeamID: offer.TeamId,
+			Grade:  offer.Grade,
+		}
+	}
+
+	o.producer.MultiCreateOffers(offers, req.BatchSize)
+
+	log.Debug().Msg("TaskMultiCreateOfferV1 -- success")
+
+	return &pb.TaskMultiCreateOfferV1Response{}, nil
+}
+
+// ----------------------------------------------------------------
+
+func (o *offerAPI) TaskUpdateOfferV1(ctx context.Context, req *pb.TaskUpdateOfferV1Request) (*pb.TaskUpdateOfferV1Response, error) {
+	if err := req.Validate(); err != nil {
+		log.Error().Err(err).Msg("TaskUpdateOfferV1 - invalid argument")
+
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	data := models.Offer{
+		ID:     req.Id,
+		UserID: req.UserId,
+		Grade:  req.Grade,
+		TeamID: req.TeamId,
+	}
+
+	if err := o.producer.CreateOffer(data); err != nil {
+		log.Error().Err(err).Msg("TaskUpdateOfferV1 -- failed")
+
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &pb.TaskUpdateOfferV1Response{}, nil
+}
+
+// ----------------------------------------------------------------
+
+func (o *offerAPI) TaskRemoveOfferV1(ctx context.Context, req *pb.TaskRemoveOfferV1Request) (*pb.TaskRemoveOfferV1Response, error) {
+	if err := req.Validate(); err != nil {
+		log.Error().Err(err).Msg("TaskRemoveOfferV1 - invalid argument")
+
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	if err := o.producer.DeleteOffer(req.Id); err != nil {
+		log.Error().Err(err).Msg("TaskRemoveOfferV1 -- failed")
+
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &pb.TaskRemoveOfferV1Response{}, nil
 }

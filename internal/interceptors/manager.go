@@ -12,27 +12,28 @@ import (
 
 var (
 	totalRequests = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "grpc_microservice_total_requests",
+		Name: "grpc_microservice_requests_total",
 		Help: "The total number of incoming gRPC requests",
 	})
 )
 
-// InterceptorManager struct
-type interceptorManager struct {
+// InterceptorManager struct.
+type InterceptorManager struct {
 }
 
-// NewInterceptorManager InterceptorManager constructor
-func NewInterceptorManager() *interceptorManager {
-	return &interceptorManager{}
+// NewInterceptorManager InterceptorManager constructor.
+func NewInterceptorManager() *InterceptorManager {
+	return &InterceptorManager{}
 }
 
-// Logger Interceptor
-func (im *interceptorManager) Logger(
+// Logger Interceptor.
+func (im *InterceptorManager) Logger(
 	ctx context.Context,
 	req interface{},
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (resp interface{}, err error) {
+
 	totalRequests.Inc()
 	start := time.Now()
 

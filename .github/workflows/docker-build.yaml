@@ -1,0 +1,86 @@
+on:
+  push:
+    tags:
+      - "*"
+
+name: Docker Image CI
+
+jobs:
+  deploy:
+    name: Build
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: docker.pkg.github.com/${{ github.repository }}
+      COMMIT_HASH: ${{ github.sha }}
+
+    steps:
+      - name: Set env version
+        run: echo "VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Git Checkout PR Ref
+        if: github.event.action != 'closed'
+        uses: actions/checkout@v1
+
+      - name: Git Checkout Base Ref
+        if: github.event.pull_request.merged == true
+        uses: actions/checkout@v1
+        with:
+          ref: refs/heads/${{ github.base_ref }}
+
+      - name: Login to GitHub Packages
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          docker login docker.pkg.github.com -u $GITHUB_ACTOR -p $TOKEN
+
+      - name: Pull latest images
+        run: |
+          docker pull $IMAGE_NAME/builder:latest || true
+          docker pull $IMAGE_NAME/grpc-server:latest || true
+          docker pull $IMAGE_NAME/kafka-consumer:latest || true
+
+      - name: Images list
+        run: |
+          docker images
+
+      - name: Build
+        run: |
+          DOCKER_BUILDKIT=1 && docker build \
+            --target builder \
+            --build-arg VERSION=$VERSION \
+            --build-arg COMMIT_HASH=$COMMIT_HASH \
+            --cache-from $IMAGE_NAME/builder:latest \
+            -t $IMAGE_NAME/builder \
+            .
+
+          DOCKER_BUILDKIT=1 && docker build \
+            --target server \
+            --build-arg VERSION=$VERSION \
+            --build-arg COMMIT_HASH=$COMMIT_HASH \
+            --cache-from $IMAGE_NAME/builder:latest \
+            --cache-from $IMAGE_NAME/grpc-server:latest \
+            -t $IMAGE_NAME/grpc-server:$VERSION \
+            -t $IMAGE_NAME/grpc-server:latest \
+            .
+
+          DOCKER_BUILDKIT=1 && docker build \
+            --target consumer \
+            --build-arg VERSION=$VERSION \
+            --build-arg COMMIT_HASH=$COMMIT_HASH \
+            --cache-from $IMAGE_NAME/builder:latest \
+            --cache-from $IMAGE_NAME/kafka-consumer:latest \
+            -t $IMAGE_NAME/kafka-consumer:$VERSION \
+            -t $IMAGE_NAME/kafka-consumer:latest \
+            .
+
+      - name: Push image to GitHub Packages
+        run: |
+          docker push $IMAGE_NAME/builder:latest
+          docker push $IMAGE_NAME/grpc-server:latest
+          docker push $IMAGE_NAME/grpc-server:$VERSION
+          docker push $IMAGE_NAME/kafka-consumer:latest
+          docker push $IMAGE_NAME/kafka-consumer:$VERSION
+
+      - name: Logout
+        run: |
+          docker logout docker.pkg.github.com

@@ -2,10 +2,13 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -23,8 +26,8 @@ import (
 	"github.com/ozoncp/ocp-offer-api/internal/api"
 	cfg "github.com/ozoncp/ocp-offer-api/internal/config"
 	"github.com/ozoncp/ocp-offer-api/internal/interceptors"
-	"github.com/ozoncp/ocp-offer-api/internal/producer"
 	"github.com/ozoncp/ocp-offer-api/internal/repo"
+	"github.com/ozoncp/ocp-offer-api/internal/service"
 	pb "github.com/ozoncp/ocp-offer-api/pkg/ocp-offer-api"
 )
 
@@ -54,8 +57,8 @@ func (s *GrpcServer) Start() error {
 
 	go func() {
 		log.Info().Msgf("Gateway server is running on %s", gatewayAddr)
-		if err := gatewayServer.ListenAndServe(); err != nil {
-			log.Fatal().Err(err).Msg("Failed running gateway server")
+		if err := gatewayServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Error().Err(err).Msg("Failed running gateway server")
 			cancel()
 		}
 	}()
@@ -64,15 +67,28 @@ func (s *GrpcServer) Start() error {
 
 	go func() {
 		log.Info().Msgf("Metrics server is running on %s", metricsAddr)
-		if err := metricsServer.ListenAndServe(); err != nil {
-			log.Fatal().Err(err).Msg("Failed running metrics server")
+		if err := metricsServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Error().Err(err).Msg("Failed running metrics server")
 			cancel()
+		}
+	}()
+
+	isReady := &atomic.Value{}
+	isReady.Store(false)
+
+	statusAdrr := fmt.Sprintf("%s:%v", cfg.Status.Host, cfg.Status.Port)
+	statusServer := createStatusServer(statusAdrr, isReady)
+
+	go func() {
+		log.Info().Msgf("Status server is running on %s", statusAdrr)
+		if err := statusServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Error().Err(err).Msg("Failed running status server")
 		}
 	}()
 
 	l, err := net.Listen("tcp", grpcAddr)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to listen")
+		return fmt.Errorf("failed to listen: %w", err)
 	}
 	defer l.Close()
 
@@ -91,13 +107,15 @@ func (s *GrpcServer) Start() error {
 		)),
 	)
 
-	repo := repo.NewRepo(s.db, s.batchSize)
-	dataProducer, err := producer.New(ctx, cfg.Kafka.Brokers, cfg.Kafka.Topic, cfg.Kafka.Capacity)
+	p, err := service.NewProducer(ctx, cfg.Kafka.Brokers, cfg.Kafka.Topic, cfg.Kafka.Capacity)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to create a producer")
+		return fmt.Errorf("failed to create a producer: %w", err)
 	}
 
-	pb.RegisterOcpOfferApiServiceServer(grpcServer, api.NewOfferAPI(repo, dataProducer))
+	r := repo.NewRepo(s.db, s.batchSize)
+
+	pb.RegisterOcpOfferApiServiceServer(grpcServer, api.NewOfferAPI(r, p))
+	grpc_prometheus.EnableHandlingTimeHistogram()
 	grpc_prometheus.Register(grpcServer)
 
 	go func() {
@@ -105,6 +123,12 @@ func (s *GrpcServer) Start() error {
 		if err := grpcServer.Serve(l); err != nil {
 			log.Fatal().Err(err).Msg("Failed running gRPC server")
 		}
+	}()
+
+	go func() {
+		time.Sleep(2 * time.Second)
+		isReady.Store(true)
+		log.Info().Msg("The service is ready to accept requests")
 	}()
 
 	if cfg.Project.Debug {
@@ -121,16 +145,28 @@ func (s *GrpcServer) Start() error {
 		log.Info().Msgf("ctx.Done: %v", done)
 	}
 
+	isReady.Store(false)
+
 	if err := gatewayServer.Shutdown(ctx); err != nil {
-		log.Info().Msgf("gatewayServer.Shutdown: %v", err)
+		log.Error().Err(err).Msg("gatewayServer.Shutdown")
+	} else {
+		log.Info().Msg("gatewayServer shut down correctly")
+	}
+
+	if err := statusServer.Shutdown(ctx); err != nil {
+		log.Error().Err(err).Msg("statusServer.Shutdown")
+	} else {
+		log.Info().Msg("statusServer shut down correctly")
 	}
 
 	if err := metricsServer.Shutdown(ctx); err != nil {
-		log.Info().Msgf("metricsServer.Shutdown: %v", err)
+		log.Error().Err(err).Msg("metricsServer.Shutdown")
+	} else {
+		log.Info().Msg("metricsServer shut down correctly")
 	}
 
 	grpcServer.GracefulStop()
-	log.Info().Msgf("Server shut down correctly")
+	log.Info().Msgf("grpcServer shut down correctly")
 
 	return nil
 }
